@@ -3,11 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="../style/style.css">
         <title>Event</title>
     </head>
     <body>
-        <div id="container">
+        <div id="wrapper">
             <header id="header">
                 <div id="logo">
                     <h1>Gemorskos</h1>
