@@ -11,25 +11,27 @@ body {
 
 #container {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(6, 1fr);
 }
 
 #background {
     position: absolute;
+    top: 0px;
     width: 100vw;
     height: 100vh;
     background-color: #ACB9D0;
     clip-path: polygon(-80% 0, 100% 0, 100% 100%);
+    z-index: -1;
 }
 
 #header {
     display: flex;
-    width: 100vw;
+    grid-column: 1/7;
     height: 100px;
     background-color: #ECF3FF;
     box-shadow: 0 0 5px 2px grey;
-    z-index: 1;
     justify-content: space-between;
+    z-index: 1;
 }
 
 #logo {
@@ -58,8 +60,8 @@ body {
 
 #content {
     display: flex;
+    grid-column: 1/7;
     flex-direction: column;
-    z-index: 1;
     height: 200px;
     align-items: center;
     justify-content: center;
@@ -67,4 +69,34 @@ body {
 
 #content h1, h3 {
     margin: 0px;
+}
+
+#event {
+    background-color: white;
+    grid-column: 2/6;
+    box-shadow: 0 0 5px 2px grey;
+    padding: 0px 30px 30px 30px;
+}
+
+#event h4 {
+    margin: 0px;
+}
+
+#buttons {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 30px;
+}
+
+#buttons input {
+    padding: 20px 40px 20px 40px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    background-color: #00b478;
+}
+
+#buttons input:hover {
+    background-color: #00a065;
 }
