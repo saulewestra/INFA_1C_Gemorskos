@@ -1,0 +1,70 @@
+@font-face {
+    font-family: Doppio;
+    src: url(../fonts/DoppioOne.ttf);
+}
+
+body {
+    margin: 0px;
+    overflow: hidden;
+    font-family: Doppio;
+}
+
+#container {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+#background {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ACB9D0;
+    clip-path: polygon(-80% 0, 100% 0, 100% 100%);
+}
+
+#header {
+    display: flex;
+    width: 100vw;
+    height: 100px;
+    background-color: #ECF3FF;
+    box-shadow: 0 0 5px 2px grey;
+    z-index: 1;
+    justify-content: space-between;
+}
+
+#logo {
+    color: #3501CA;
+    margin-left: 30px;
+}
+
+#logo h1 {
+    font-size: 50px;
+    margin: 0px;
+}
+
+#logo h3 {
+    font-size: 22px;
+    margin: 0px;
+}
+
+#profile {
+    width: 50px;
+    height: 50px;
+    background-color: lightgray;
+    border-radius: 100%;
+    align-self: center;
+    margin-right: 30px;
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    height: 200px;
+    align-items: center;
+    justify-content: center;
+}
+
+#content h1, h3 {
+    margin: 0px;
+}
