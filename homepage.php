@@ -1,3 +1,27 @@
+<?php
+try{
+    $dbConnect = new PDO ("mysql:host=mysql;dbname=Bugdb;charset=utf8", "root", "qwerty");
+}catch(Exception $error){
+    echo "Geen verbinding met de database";
+}
+if(isset($dbConnect)){
+    try{
+        $stmt = $dbConnect->prepare("SELECT *
+                                    FROM `bugdb`");
+        $stmt->bindColumn("id",$id);
+        $stmt->bindColumn("product_name",$product_name);
+        $stmt->bindColumn("version",$version);
+        $stmt->bindColumn("hardware_type",$hardware_type);
+        $stmt->bindColumn("OS",$OS);
+        $stmt->bindColumn("frequency",$frequency);
+        $stmt->bindColumn("solution",$solution);
+        $stmt->execute();                         
+    }catch(Exception $error){
+        echo $error;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -18,6 +42,13 @@
                     <img id="acc" src="" alt="acc">
                 </div>
             </header>
+            <div id="blockhome">
+                <h1>Test</h1>
+                mgwlkjsfkjlsefklsdfkjf
+                <?php
+                  
+                ?>
+            </div>
         </div>
     </body>
 </html>
