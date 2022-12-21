@@ -1,10 +1,8 @@
---Project Database Application Managment, Gemorskos
 
 CREATE DATABASE IF NOT EXISTS `Gemorskos`
 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `Gemorskos`
 
--- 1. Tabel voor medewerkers
 CREATE TABLE `Medewerkers`(
 `medewerker_id` INT AUTO_INCREMENT NOT NULL,
 `werk_functie_id` INT NOT NULL,
@@ -17,14 +15,12 @@ PRIMARY KEY(`medewerker_id`),
 FOREIGN KEY(`werk_functie_id`) REFERENCES `Werk_Functie`(`werk_functie_id`) ON UPDATE CASCADE ON DELETE NO ACTION
 );
 
--- 2. Tabel voor de soorten werk functies
 CREATE TABLE `Werk_Functie`(
 `werk_functie_id` INT AUTO_INCREMENT NOT NULL,
 `functie_naam` VARCHAR(14) NOT NULL,
 PRIMARY KEY(`werk_functie_id`)
 );
 
--- 3. Tabel voor de evenementen die te zien zijn
 CREATE TABLE `Evenement`(
 `evenement_id` INT AUTO_INCREMENT NOT NULL,
 `evenement_naam` VARCHAR(40) NOT NULL,
@@ -37,7 +33,6 @@ CREATE TABLE `Evenement`(
 PRIMARY KEY(`evenement_id`)
 );
 
--- 4. Tabel voor informatie van de geclaimde events
 CREATE TABLE `Evenement_Detail`(
 `medewerker1_id` INT NOT NULL,
 `medewerker2_id` INT NOT NULL,
@@ -47,7 +42,6 @@ FOREIGN KEY(`medewerker2_id`) REFERENCES `Medewerker`(`medewerker_id`) ON UPDATE
 FOREIGN KEY(`evenement_id`) REFERENCES `Evenement`(`evenement_id`) ON UPDATE CASCADE ON DELETE NO ACTION
 );
 
--- 5. Tabel voor Bestanden
 CREATE TABLE `Bestand`(
 `bestand_id` INT AUTO_INCREMENT NOT NULL;
 `medewerker_id` INT NOT NULL;
@@ -61,10 +55,3 @@ PRIMARY KEY(`bestand_id`),
 FOREIGN KEY(`medewerker_id`) REFERENCES `Medewerkers`(`medewerker_id`) ON UPDATE CASCADE ON DELETE NO ACTION,
 FOREIGN KEY(`evenement_id`) REFERENCES `Evenement`(`evenement_id`) ON UPDATE CASCADE ON DELETE NO ACTION
 );
-
-
--- FOREIGN KEY toevoegen
-
--- ALTER TABLE `Medewerkers`
--- ADD FOREIGN KEY(`medewerker_werk_functie`) REFERENCES `Werk_Functie`(`werk_functie_id`)
--- ON UPDATE CASCADE ON DELETE NO ACTION;
