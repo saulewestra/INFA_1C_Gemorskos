@@ -72,6 +72,7 @@ body {
 }
 
 #event {
+    margin-top: 30px;
     background-color: white;
     grid-column: 2/6;
     box-shadow: 0 0 5px 2px grey;
