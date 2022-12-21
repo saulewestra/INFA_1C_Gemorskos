@@ -35,19 +35,27 @@
                 </main>';
             }
 
-            function showEvent(array $event): void {
+            function showEvent(PDO $db, array $event): void {
                 echo '';
             }
 
-            function getEvent(int $id): array | false {
-                return [];
+            function getEvent(PDO $db, int $id): array | false {
+                try {
+                    $cursor = $db->prepare("SELECT Evenement.evenement_naam, Evenement.beschrijving, Evenement.dag, Evenement.tijd, Evenement.straatnaam, Evenement.stad, Evenement.postcode, Evenement_Detail.medewerker1_id, Evenement_Detail.medewerker2_id FROM Evenement WHERE Evenement.evenement_id = :id JOIN Evenement_Detail ON Evenement.evenement_id = Evenement_Detail.evenement_id");
+                    $cursor->bindParam("id", $id, PDO::PARAM_INT);
+                    $cursor->execute();
+                    $result = $cursor->fetchAll(PDO::FETCH_ASSOC);
+                    return (sizeof($result) > 0) ? $result[0] : false;
+                } catch (Exception $exc) {
+                    return false;
+                }
             }
-            
+
             if (isset($db)) {
-                if ($_SERVER["REQUEST_METHOD"] != "GET" || !($id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT)) || !($event = getEvent($id))) {
-                    showError("Dit event bestaat niet");
+                if ($_SERVER["REQUEST_METHOD"] != "GET" || !($id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT)) || !($event = getEvent($db, $id))) {
+                    showError("Dit event bestaat niet.");
                 } else {
-                    showEvent($event);
+                    showEvent($db, $event);
                 }
             }
             ?>
