@@ -1,27 +1,3 @@
-<?php
-try{
-    $dbConnect = new PDO ("mysql:host=mysql;dbname=Bugdb;charset=utf8", "root", "qwerty");
-}catch(Exception $error){
-    echo "Geen verbinding met de database";
-}
-if(isset($dbConnect)){
-    try{
-        $stmt = $dbConnect->prepare("SELECT *
-                                    FROM `bugdb`");
-        $stmt->bindColumn("id",$id);
-        $stmt->bindColumn("product_name",$product_name);
-        $stmt->bindColumn("version",$version);
-        $stmt->bindColumn("hardware_type",$hardware_type);
-        $stmt->bindColumn("OS",$OS);
-        $stmt->bindColumn("frequency",$frequency);
-        $stmt->bindColumn("solution",$solution);
-        $stmt->execute();                         
-    }catch(Exception $error){
-        echo $error;
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -33,20 +9,55 @@ if(isset($dbConnect)){
     </head>
     <body>
         <div id="container">
-            <header>
-                <div id="logo">
-                    <h1 id="logoh">Gemorskos</h1>
-                    <p id="logop">Wij maken kranten</p>
-                </div>
-                <div id="acc">
-                    <img id="acc" src="" alt="acc">
-                </div>
-            </header>
-            <div id="blockhome">
-                <h1>Test</h1>
-                mgwlkjsfkjlsefklsdfkjf
+            <div id="background">
+                <header>
+                    <div id="logo">
+                        <h1 id="logoh">Gemorskos</h1>
+                        <p id="logop">Wij maken kranten</p>
+                    </div>
+                    <div id="acc">
+                        <img id="acc" src="" alt="acc">
+                    </div>
+                </header>   
                 <?php
-                  
+                try{
+                    $dbConnect = new PDO ("mysql:host=mysql;dbname=Gemorskos;charset=utf8", "root", "qwerty");
+                }catch(Exception $error){
+                    echo "Geen verbinding met de database";
+                }
+                if(isset($dbConnect)){
+                    try{
+                        $stmt = $dbConnect->prepare("SELECT *
+                                                    FROM `Evenement`
+                                                    JOIN `Evenement_Detail`
+                                                    ON `Evenement`.`evenement_id` = `Evenement_Detail`.`evenement_id`");
+                        $stmt->bindColumn("evenement_id",$id);
+                        $stmt->bindColumn("evenement_naam",$evenementname);
+                        $stmt->bindColumn("beschrijving",$beschrijving);
+                        $stmt->bindColumn("datum",$datum);
+                        $stmt->bindColumn("straatnaam",$straatnaam);
+                        $stmt->bindColumn("stad",$stad);
+                        $stmt->bindColumn("postcode",$solution);
+                        $stmt->bindColumn("redacteur_id",$redacteurid);
+                        $stmt->bindColumn("journalist_id",$journalistid);
+                        $stmt->bindColumn("fotograaf_id",$fotograafid);
+                        $stmt->execute();                         
+                    }catch(Exception $error){
+                        echo "Tabel niet gevonden";
+                    }
+                    if(isset($stmt)) {
+                        echo '   
+                            <div>';
+                                while($result = $stmt->fetch()) {
+                                    echo '<div id="homeblock"
+                                        <h1> Overzicht van events </h1>
+                                        <a href="events/?id='.$id.'"> "'.$evenementname.'"
+                                        </a>
+                                        </div>';
+                            }
+                            echo '</div>';
+                    }
+                }
                 ?>
             </div>
         </div>
