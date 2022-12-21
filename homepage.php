@@ -23,7 +23,7 @@
                 try{
                     $dbConnect = new PDO ("mysql:host=mysql;dbname=Gemorskos;charset=utf8", "root", "qwerty");
                 }catch(Exception $error){
-                    echo "Geen verbinding met de database";
+                    echo "<main id='content'><h1>Geen verbinding met de database</h1></main>";
                 }
                 if(isset($dbConnect)){
                     try{
@@ -43,7 +43,7 @@
                         $stmt->bindColumn("fotograaf_id",$fotograafid);
                         $stmt->execute();                         
                     }catch(Exception $error){
-                        echo "Tabel niet gevonden";
+                        echo "<main id='content'><h1>Tabel niet gevonden</h1><main>";
                     }
                     if(isset($stmt)) {
                         echo '   
