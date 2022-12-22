@@ -38,14 +38,14 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Medewerkers(medewerker_id INT AUTO_INCREMENT NOT NULL, werk_functie_id INT NOT NULL, voornaam VARCHAR(25) NOT NULL, achternaam VARCHAR(25) NOT NULL, email VARCHAR(55) UNIQUE NOT NULL, telefoonnummer VARCHAR(10) UNIQUE NOT NULL, wachtwoord VARCHAR(60) NOT NULL, PRIMARY KEY(medewerker_id), FOREIGN KEY(werk_functie_id) REFERENCES Werk_Functie(werk_functie_id) ON UPDATE CASCADE ON DELETE NO ACTION)");
                     $cursor->execute();
                     $cursor->closeCursor();
-                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Evenement_Detail(journalist_id INT NOT NULL, fotograaf_id INT NOT NULL, evenement_id INT NOT NULL, FOREIGN KEY(journalist_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(fotograaf_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(evenement_id) REFERENCES Evenement(evenement_id) ON UPDATE CASCADE ON DELETE NO ACTION)");
+                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Evenement_Detail(redacteur_id INT, journalist_id INT, fotograaf_id INT, evenement_id INT NOT NULL, FOREIGN KEY(redacteur_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(journalist_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(fotograaf_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(evenement_id) REFERENCES Evenement(evenement_id) ON UPDATE CASCADE ON DELETE NO ACTION)");
                     $cursor->execute();
                     $cursor->closeCursor();
                 } catch (Exception $exc) {
-                    showError("De database is op dit moment niet bereikbaar. Probeer het later nog eens.");
+                    showMessage("De database is op dit moment niet bereikbaar. Probeer het later nog eens.");
                 }
 
-                function showError(string $error): void {
+                function showMessage(string $error): void {
                     echo '<main id="content">
                         <h1>'.$error.'</h1>
                         <h3>Klik <a href=".">hier</a> om terug te gaan</h3>
@@ -97,7 +97,86 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 }
 
                 function claimEvent(PDO $db, int $id, bool $redacteur, bool $journalist, bool $fotograaf): void {
-
+                    if (!isset(($medewerker_id = $_SESSION["id"]))) {
+                        echo '<main id="content">
+                            <h1>Je bent niet ingelogd</h1>
+                            <h3>Klik <a href="login.php">hier</a> om naar de inlogpagina te gaan</h3>
+                        </main>';
+                    } else {
+                        try {
+                            $cursor = $db->prepare("SELECT werk_functie_id FROM Medewerkers WHERE medewerker_id = :id");
+                            $cursor->bindParam("id", $medewerker_id, PDO::PARAM_INT);
+                            $cursor->execute();
+                            $werk_functie = $cursor->fetch(PDO::FETCH_NUM);
+                            $cursor->closeCursor();
+                            if (!$werk_functie) {
+                                showMessage("U heeft geen rechten om dit event te claimen.");
+                            } else {
+                                $is_redactor = $werk_functie[0] == 2;
+                                $is_journalist = $werk_functie[0] == 3 || $werk_functie[0] == 6;
+                                $is_photographer = $werk_functie[0] == 4 || $werk_functie[0] == 6;
+                                if ($redacteur && !$is_redactor) {
+                                    showMessage("U kunt deze rol niet claimen.");
+                                } else if ($journalist && !$is_journalist) {
+                                    showMessage("U kunt deze rol niet claimen.");
+                                } else if ($fotograaf && !$is_photographer) {
+                                    showMessage("U kunt deze rol niet claimen.");
+                                } else {
+                                    if ($redacteur) {
+                                        $cursor = $db->prepare("SELECT Evenement_Detail.redacteur_id FROM Evenement_Detail WHERE Evenement_Detail.evenement_id = :id JOIN Evenement ON Evenement_Detail.evenement_id = Evenement.evenement_id");
+                                        $cursor->bindParam("id", $id, PDO::PARAM_INT);
+                                        $cursor->execute();
+                                        $result = $cursor->fetch();
+                                        $cursor->closeCursor();
+                                        if ($result) {
+                                            showMessage("Dit event heeft al een redacteur.");
+                                        } else {
+                                            $cursor = $db->prepare("UPDATE Evenement_Detail SET redacteur_id = :id WHERE evenement_id = :event_id");
+                                            $cursor->bindParam("id", $medewerker_id, PDO::PARAM_INT);
+                                            $cursor->bindParam("event_id", $id, PDO::PARAM_INT);
+                                            $cursor->execute();
+                                            $cursor->closeCursor();
+                                        }
+                                    }
+                                    if ($journalist) {
+                                        $cursor = $db->prepare("SELECT Evenement_Detail.journalist_id FROM Evenement_Detail WHERE Evenement_Detail.evenement_id = :id JOIN Evenement ON Evenement_Detail.evenement_id = Evenement.evenement_id");
+                                        $cursor->bindParam("id", $id, PDO::PARAM_INT);
+                                        $cursor->execute();
+                                        $result = $cursor->fetch();
+                                        $cursor->closeCursor();
+                                        if ($result) {
+                                            showMessage("Dit event heeft al een journalist.");
+                                        } else {
+                                            $cursor = $db->prepare("UPDATE Evenement_Detail SET journalist_id = :id WHERE evenement_id = :event_id");
+                                            $cursor->bindParam("id", $medewerker_id, PDO::PARAM_INT);
+                                            $cursor->bindParam("event_id", $id, PDO::PARAM_INT);
+                                            $cursor->execute();
+                                            $cursor->closeCursor();
+                                        }
+                                    }
+                                    if ($fotograaf) {
+                                        $cursor = $db->prepare("SELECT Evenement_Detail.fotograaf_id FROM Evenement_Detail WHERE Evenement_Detail.evenement_id = :id JOIN Evenement ON Evenement_Detail.evenement_id = Evenement.evenement_id");
+                                        $cursor->bindParam("id", $id, PDO::PARAM_INT);
+                                        $cursor->execute();
+                                        $result = $cursor->fetch();
+                                        $cursor->closeCursor();
+                                        if ($result) {
+                                            showMessage("Dit event heeft al een fotograaf.");
+                                        } else {
+                                            $cursor = $db->prepare("UPDATE Evenement_Detail SET fotograaf_id = :id WHERE evenement_id = :event_id");
+                                            $cursor->bindParam("id", $medewerker_id, PDO::PARAM_INT);
+                                            $cursor->bindParam("event_id", $id, PDO::PARAM_INT);
+                                            $cursor->execute();
+                                            $cursor->closeCursor();
+                                        }
+                                    }
+                                    showMessage("Rollen succesvol geclaimed.");
+                                }
+                            }
+                        } catch (Exception $exc) {
+                            showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
+                        }
+                    }
                 }
 
                 function showClaim(): void {
@@ -106,7 +185,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 
                 if (isset($db)) {
                     if (!$id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT) || !$event = getEvent($db, $id)) {
-                        showError("Dit event bestaat niet.");
+                        showMessage("Dit event bestaat niet.");
                     } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
                         showEvent($event);
                     } else if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -116,7 +195,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             $fotograaf = false;
                             if (is_string($actions)) {
                                 if (!$action = filter_var($actions, FILTER_SANITIZE_SPECIAL_CHARS)) {
-                                    showError("Er is iets fout gegaan. Probeer het later opnieuw.");
+                                    showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
                                 } else {
                                     $redacteur = $action == "redacteur";
                                     $journalist = $action == "journalist";
@@ -125,7 +204,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             } else if (is_array($actions)) {
                                 foreach($actions as $action) {
                                     if (!$action = filter_var($action, FILTER_SANITIZE_SPECIAL_CHARS)) {
-                                        showError("Er is iets fout gegaan. Probeer het later opnieuw.");
+                                        showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
                                     } else {
                                         $redacteur = $action == "redacteur";
                                         $journalist = $action == "journalist";
@@ -136,7 +215,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             if ($redacteur || $journalist || $fotograaf) {
                                 claimEvent($db, $id, $redacteur, $journalist, $fotograaf);
                             } else {
-                                showError("Er is iets fout gegaan. Probeer het later opnieuw.");
+                                showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
                             }
                         } else {
                             showClaim();
