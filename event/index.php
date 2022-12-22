@@ -27,6 +27,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     <h3>Klik <a href="login.php">hier</a> om naar de inlogpagina te gaan</h3>
                 </main>';
             } else {
+                $medewerker_id = $_SESSION["id"];
                 try {
                     $db = new PDO("mysql:host=mysql;dbname=Gemorskos;charset=utf8", "root", "qwerty");
                     $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Evenement(evenement_id INT AUTO_INCREMENT NOT NULL, evenement_naam VARCHAR(40) NOT NULL, beschrijving TEXT NOT NULL, datum DATE, straatnaam VARCHAR(26) NOT NULL, stad VARCHAR(40) NOT NULL, postcode VARCHAR(6) NOT NULL, PRIMARY KEY(evenement_id))");
@@ -97,7 +98,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 }
 
                 function claimEvent(PDO $db, int $id, bool $redacteur, bool $journalist, bool $fotograaf): void {
-                    if (!isset(($medewerker_id = $_SESSION["id"]))) {
+                    if (!isset($_SESSION["id"])) {
                         echo '<main id="content">
                             <h1>Je bent niet ingelogd</h1>
                             <h3>Klik <a href="login.php">hier</a> om naar de inlogpagina te gaan</h3>
@@ -180,21 +181,38 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 }
 
                 function showClaim(): void {
-
+                    echo '<main id="claim">
+                        <form method="POST">
+                            <div>
+                                <input id="redacteur" type="checkbox" name="actions[]" value="redacteur">
+                                <label for="redacteur">Redacteur</label>
+                            </div>
+                            <div>
+                                <input id="journalist" type="checkbox" name="actions[]" value="journalist">
+                                <label for="journalist">Journalist</label>
+                            </div>
+                            <div>
+                                <input id="fotograaf" type="checkbox" name="actions[]" value="fotograaf">
+                                <label for="fotograaf">Fotograaf</label>
+                            </div>
+                            <input id="submitclaim" type="submit" value="Verzenden">
+                        </form>
+                    </main>';
                 }
 
                 if (isset($db)) {
-                    if (!$id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT) || !$event = getEvent($db, $id)) {
+                    if (!($id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT)) || !$event = getEvent($db, $id)) {
                         showMessage("Dit event bestaat niet.");
                     } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
                         showEvent($event);
                     } else if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                        if (isset(($actions = $_GET["actions"]))) {
+                        if (isset($_POST["actions"])) {
+                            $actions = $_POST["actions"];
                             $redacteur = false;
                             $journalist = false;
                             $fotograaf = false;
                             if (is_string($actions)) {
-                                if (!$action = filter_var($actions, FILTER_SANITIZE_SPECIAL_CHARS)) {
+                                if (!($action = filter_var($actions, FILTER_SANITIZE_SPECIAL_CHARS))) {
                                     showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
                                 } else {
                                     $redacteur = $action == "redacteur";
@@ -203,7 +221,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                 }
                             } else if (is_array($actions)) {
                                 foreach($actions as $action) {
-                                    if (!$action = filter_var($action, FILTER_SANITIZE_SPECIAL_CHARS)) {
+                                    if (!($action = filter_var($action, FILTER_SANITIZE_SPECIAL_CHARS))) {
                                         showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
                                     } else {
                                         $redacteur = $action == "redacteur";
