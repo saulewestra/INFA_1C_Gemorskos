@@ -48,11 +48,11 @@
                             <div>
                             <h1> Overzicht van Events</h1>';
                                 while($result = $stmt->fetch()) {
-                                    echo '<div id="homeblock">
+                                    echo '<div id="blockhome">
                                         <a href="events/?id='.$id.'"><h1>'.$evenementname.'</h1>
                                         </a>
                                         </div>
-                                        <div id = "homeblock">
+                                        <div id = "blockhome">
                                         <p> '.$beschrijving.' </p>';
                             }
                             echo '</div>';
