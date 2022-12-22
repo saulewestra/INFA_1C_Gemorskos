@@ -28,9 +28,7 @@
                 if(isset($dbConnect)){
                     try{
                         $stmt = $dbConnect->prepare("SELECT *
-                                                    FROM `Evenement`
-                                                    JOIN `Evenement_Detail`
-                                                    ON `Evenement`.`evenement_id` = `Evenement_Detail`.`evenement_id`");
+                                                    FROM `Evenement`");
                         $stmt->bindColumn("evenement_id",$id);
                         $stmt->bindColumn("evenement_naam",$evenementname);
                         $stmt->bindColumn("beschrijving",$beschrijving);
@@ -47,13 +45,15 @@
                     }
                     if(isset($stmt)) {
                         echo '   
-                            <div>';
+                            <div>
+                            <h1> Overzicht van Events</h1>';
                                 while($result = $stmt->fetch()) {
-                                    echo '<div id="homeblock"
-                                        <h1> Overzicht van events </h1>
-                                        <a href="events/?id='.$id.'"> "'.$evenementname.'"
+                                    echo '<div id="homeblock">
+                                        <a href="events/?id='.$id.'"><h1>'.$evenementname.'</h1>
                                         </a>
-                                        </div>';
+                                        </div>
+                                        <div id = "homeblock">
+                                        <p> '.$beschrijving.' </p>';
                             }
                             echo '</div>';
                     }
