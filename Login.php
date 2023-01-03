@@ -1,25 +1,29 @@
 <?php
-
-//variables 
+session_start();
+//variables
 $host = 'mysql';
 $username = 'root';
 $password = 'qwerty';
-$database = 'Login';
+$database = 'Gemorskos';
 
 
-$db = new PDO("mysql:host=$host;dbname=$database", $username, $password);
+$db = new PDO("mysql:host=$host;dbname=$database", $medewerker_id, $wachtwoord);
 
+if ($_SESSION['LoggedIn']){
+
+    header('Location: Index.html');
+
+}
 
 if (isset($_POST['submit'])) {
 
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = $_POST['medewerker_id'];
+    $password = $_POST['wachtwoord'];
 
 
-    $query = 'SELECT * FROM users WHERE username = :username AND password = :password';
+    $query = 'SELECT * FROM Medewerkers WHERE medewerker_id = :medewerker_id ';
     $params = [
-      'username' => $username,
-      'password' => $password
+      'medewerker_id' => $medewerker_id
     ];
 
 
@@ -27,16 +31,19 @@ if (isset($_POST['submit'])) {
     $stmt->execute($params);
 
     $result = $stmt->fetch();
+    $hash_wachtwoord = $result['medewerker_id'];
 
 
-    if ($result) {
+
+    if (password_verify($wachtwoord, $hash_wachtwoord)) {
 
         session_start();
 
-        $_SESSION['user'] = $result;
+        $_SESSION['medewerker_id'] = $medewerker_id;
+        $_SESSION['LoggedIn'] = true;
 
 
-        header('Location: https://google.com');
+        header('Location: Index.html');
         exit;
     } else {
 
@@ -56,7 +63,7 @@ if (isset($_POST['submit'])) {
 <body>
 
 
-  
+
     <div id="Container">
         <header>
             <div class="logo">
@@ -64,7 +71,9 @@ if (isset($_POST['submit'])) {
                 <p>Wij maken kranten</p>
             </div>
             <div class="profile">
-                    <a href="https://www.google.com"><img src="img/profilepic.png" alt="ProfilePic"></a>
+                <a href="https://www.google.com">
+                    <img src="img/profilepic.png" alt="ProfilePic" />
+                </a>
             </div>
 
         </header>
@@ -77,22 +86,21 @@ if (isset($_POST['submit'])) {
                     <h1>Gemorskos</h1>
 
                     <div>
-                        
+
                         <form action="" method="post">
                             <p>Login</p>
                             <div>
-                                <input type="text" name="username" value="" placeholder="Email/Username" required />
+                                <input type="text" name="medewerker_id" value="" placeholder="Medewerker ID" required />
                             </div>
 
                             <div>
-                                <input type="password" name="password" value="" placeholder="Password" required />
+                                <input type="password" name="wachtwoord" value="" placeholder="Wachtwoord" required />
                             </div>
 
                             <div>
                                 <input type="submit" name="submit" value="Login" class="input2" />
                             </div>
-                            <div>
-                            </div>
+                            <div></div>
                         </form>
                     </div>
                 </div>
