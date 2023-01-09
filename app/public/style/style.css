@@ -32,17 +32,66 @@
 }
 
 
-header
-{
-    grid-column: 1/4;
-    height: 100px;
-    background-color: #ECF3FF;
-    z-index: 9;
-	display:flex;
-	justify-content:space-between;
-	align-items:center;
-
+header {
+	display: flex;
+	grid-row: 1;
+	grid-column: 1/4;
+	height: 100px;
+	background-color: #ECF3FF;
+	z-index: 9;
+	box-shadow: 0 0 5px 2px grey;
 }
+
+	header > .logo {
+		color: #3501CA;
+		font-size: 30px;
+		margin-left: 30px;
+		font-family: Doppio;
+	}
+
+		header > .logo > p {
+			font-size: 22px;
+			position: relative;
+			bottom: 5px;
+		}
+
+	header > .profile {
+		display: flex;
+		border-radius: 100%;
+		height: 50px;
+		width: 50px;
+		background-color: lightgrey;
+		margin-left: auto;
+		margin-right: 40px;
+		align-self: center;
+		justify-content: center;
+	}
+
+	header a {
+		display: flex;
+		align-items: center;
+	}
+
+		header a img {
+			border-radius: 100%;
+			height: 50px;
+			width: 50px;
+			border: 3px solid lightgrey;
+		}
+
+.Main {
+	grid-row: 2;
+	grid-column: 1/4;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+	.Main > img {
+		height: 100vh;
+		width: 100vw;
+	}
+
 #acc{
 	width:50px;
 	height:50px;
@@ -146,6 +195,70 @@ header
 	color:#3501CA;
 }
 
+.login {
+	display: flex;
+	grid-row: 2;
+	grid-column: 1/4;
+	z-index: 10;
+	justify-content: center;
+}
+
+	.login > div {
+		display: flex;
+		justify-content: center;
+		margin-top: 125px;
+		width: 550px;
+		height: 550px;
+		background-image: url("../img/centerbo.png");
+		color: #3501CA;
+		font-size: 25px;
+		box-shadow: 0 0 10px 2px grey;
+	}
+
+		.login > div > div {
+			text-align: center;
+			position: relative;
+			top: 25px;
+		}
+
+			.login > div > div > div {
+				display: flex;
+				justify-content: center;
+				position: relative;
+				top: 75px;
+				color: white;
+				font-size: 20px;
+				text-align: left;
+			}
+
+				.login > div > div > div > form > div {
+					display: flex;
+					justify-content: center;
+				}
+
+input {
+	width: 300px;
+	height: 40px;
+	margin: 5px;
+	border-radius: 10px;
+	border-style: none;
+}
+
+::placeholder {
+	text-align: center;
+	font-weight: bold;
+	color: black;
+}
+
+.input2 {
+	position: relative;
+	top: 40px;
+	color: black;
+	font-weight: bold;
+	background-color: white;
+}
+
+=======
 #blockhome{
 	display: flex;
 	grid-column: 1/3;
@@ -204,6 +317,11 @@ header
     margin-right: 30px;
 }
 
+#wrapper {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+}
+
 #content {
     display: flex;
     grid-column: 1/7;
@@ -229,6 +347,14 @@ header
     margin: 0px;
 }
 
+#event p {
+    margin: 10px 0px 20px 0px;
+}
+
+#event h1 {
+    margin-top: 10px;
+}
+
 #buttons {
     display: flex;
     justify-content: space-evenly;
@@ -245,5 +371,37 @@ header
 }
 
 #buttons input:hover {
+    background-color: #00a065;
+}
+
+#claim {
+    margin-top: 30px;
+    background-color: white;
+    grid-column: 2/6;
+    box-shadow: 0 0 5px 2px grey;
+    padding: 20px 30px 30px 30px;
+    font-size: 24px;
+}
+
+#claim form {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+#claim form div {
+    margin-bottom: 20px;
+}
+
+#submitclaim {
+    padding: 15px 30px 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    background-color: #00b478;
+}
+
+#submitclaim:hover {
     background-color: #00a065;
 }
