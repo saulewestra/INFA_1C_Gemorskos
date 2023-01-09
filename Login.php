@@ -1,13 +1,14 @@
 <?php
 session_start();
 //variables
-$host = 'mysql';
-$username = 'root';
-$password = 'qwerty';
-$database = 'Gemorskos';
+
+$host = $_ENV['host'];
+$username = $_ENV['username'];
+$password = $_ENV['password'];
+$database = $_ENV['database'];
 
 
-$db = new PDO("mysql:host=$host;dbname=$database", $medewerker_id, $wachtwoord);
+$db = new PDO("mysql:host=$host;dbname=$database;charset=utf8", $username, $password);
 
 if ($_SESSION['LoggedIn']){
 
