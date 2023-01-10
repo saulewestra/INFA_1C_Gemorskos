@@ -28,28 +28,12 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 </main>';
             } else {
                 $medewerker_id = $_SESSION["id"];
-                try {
-                    $db = new PDO("mysql:host=mysql;dbname=Gemorskos;charset=utf8", "root", "qwerty");
-                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Evenement(evenement_id INT AUTO_INCREMENT NOT NULL, evenement_naam VARCHAR(40) NOT NULL, beschrijving TEXT NOT NULL, datum DATE, straatnaam VARCHAR(26) NOT NULL, stad VARCHAR(40) NOT NULL, postcode VARCHAR(6) NOT NULL, PRIMARY KEY(evenement_id))");
-                    $cursor->execute();
-                    $cursor->closeCursor();
-                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Werk_Functie(werk_functie_id INT AUTO_INCREMENT NOT NULL, functie_naam VARCHAR(14) NOT NULL, PRIMARY KEY(werk_functie_id))");
-                    $cursor->execute();
-                    $cursor->closeCursor();
-                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Medewerkers(medewerker_id INT AUTO_INCREMENT NOT NULL, werk_functie_id INT NOT NULL, voornaam VARCHAR(25) NOT NULL, achternaam VARCHAR(25) NOT NULL, email VARCHAR(55) UNIQUE NOT NULL, telefoonnummer VARCHAR(10) UNIQUE NOT NULL, wachtwoord VARCHAR(60) NOT NULL, PRIMARY KEY(medewerker_id), FOREIGN KEY(werk_functie_id) REFERENCES Werk_Functie(werk_functie_id) ON UPDATE CASCADE ON DELETE NO ACTION)");
-                    $cursor->execute();
-                    $cursor->closeCursor();
-                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Evenement_Detail(redacteur_id INT, journalist_id INT, fotograaf_id INT, evenement_id INT NOT NULL, FOREIGN KEY(redacteur_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(journalist_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(fotograaf_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(evenement_id) REFERENCES Evenement(evenement_id) ON UPDATE CASCADE ON DELETE NO ACTION)");
-                    $cursor->execute();
-                    $cursor->closeCursor();
-                } catch (Exception $exc) {
-                    showMessage("De database is op dit moment niet bereikbaar. Probeer het later nog eens.");
-                }
 
-                function showMessage(string $error): void {
+                function showMessage(string $error, int $id = null): void {
+                    $href = (isset($id)) ? "./?id=".$id : ".";
                     echo '<main id="content">
                         <h1>'.$error.'</h1>
-                        <h3>Klik <a href=".">hier</a> om terug te gaan</h3>
+                        <h3>Klik <a href="'.$href.'">hier</a> om terug te gaan</h3>
                     </main>';
                 }
 
@@ -111,17 +95,17 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             $werk_functie = $cursor->fetch(PDO::FETCH_NUM);
                             $cursor->closeCursor();
                             if (!$werk_functie) {
-                                showMessage("U heeft geen rechten om dit event te claimen.");
+                                showMessage("U heeft geen rechten om dit event te claimen.", $id);
                             } else {
                                 $is_redactor = $werk_functie[0] == 2;
                                 $is_journalist = $werk_functie[0] == 3 || $werk_functie[0] == 6;
                                 $is_photographer = $werk_functie[0] == 4 || $werk_functie[0] == 6;
                                 if ($redacteur && !$is_redactor) {
-                                    showMessage("U kunt deze rol niet claimen.");
+                                    showMessage("U kunt deze rol niet claimen.", $id);
                                 } else if ($journalist && !$is_journalist) {
-                                    showMessage("U kunt deze rol niet claimen.");
+                                    showMessage("U kunt deze rol niet claimen.", $id);
                                 } else if ($fotograaf && !$is_photographer) {
-                                    showMessage("U kunt deze rol niet claimen.");
+                                    showMessage("U kunt deze rol niet claimen.", $id);
                                 } else {
                                     if ($redacteur) {
                                         $cursor = $db->prepare("SELECT Evenement_Detail.redacteur_id FROM Evenement_Detail WHERE Evenement_Detail.evenement_id = :id JOIN Evenement ON Evenement_Detail.evenement_id = Evenement.evenement_id");
@@ -130,7 +114,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                         $result = $cursor->fetch();
                                         $cursor->closeCursor();
                                         if ($result) {
-                                            showMessage("Dit event heeft al een redacteur.");
+                                            showMessage("Dit event heeft al een redacteur.", $id);
                                         } else {
                                             $cursor = $db->prepare("UPDATE Evenement_Detail SET redacteur_id = :id WHERE evenement_id = :event_id");
                                             $cursor->bindParam("id", $medewerker_id, PDO::PARAM_INT);
@@ -146,7 +130,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                         $result = $cursor->fetch();
                                         $cursor->closeCursor();
                                         if ($result) {
-                                            showMessage("Dit event heeft al een journalist.");
+                                            showMessage("Dit event heeft al een journalist.", $id);
                                         } else {
                                             $cursor = $db->prepare("UPDATE Evenement_Detail SET journalist_id = :id WHERE evenement_id = :event_id");
                                             $cursor->bindParam("id", $medewerker_id, PDO::PARAM_INT);
@@ -162,7 +146,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                         $result = $cursor->fetch();
                                         $cursor->closeCursor();
                                         if ($result) {
-                                            showMessage("Dit event heeft al een fotograaf.");
+                                            showMessage("Dit event heeft al een fotograaf.", $id);
                                         } else {
                                             $cursor = $db->prepare("UPDATE Evenement_Detail SET fotograaf_id = :id WHERE evenement_id = :event_id");
                                             $cursor->bindParam("id", $medewerker_id, PDO::PARAM_INT);
@@ -175,24 +159,41 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                 }
                             }
                         } catch (Exception $exc) {
-                            showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
+                            showMessage("Er is iets fout gegaan. Probeer het later opnieuw.", $id);
                         }
                     }
                 }
 
-                function showClaim(): void {
+                function checkFunctions(PDO $db, int $id): array {
+                    $cursor = $db->prepare("SELECT werk_functie_id FROM Medewerkers WHERE medewerker_id = :id");
+                    $cursor->bindParam("id", $medewerker_id, PDO::PARAM_INT);
+                    $cursor->execute();
+                    $werk_functie = $cursor->fetch(PDO::FETCH_NUM);
+                    $cursor->closeCursor();
+                    if (!$werk_functie) {
+                        return ["redactor" => false, "journalist" => false, "photographer" => false];
+                    } else {
+                        $functions = [];
+                        $functions["redactor"] = $werk_functie[0] == 2;
+                        $functions["journalist"] = $werk_functie[0] == 3 || $werk_functie[0] == 6;
+                        $functions["photographer"] = $werk_functie[0] == 4 || $werk_functie[0] == 6;
+                        return $functions;
+                    }
+                }
+
+                function showClaim(bool $hasRedactor, bool $hasJournalist, bool $hasPhotographer): void {
                     echo '<main id="claim">
                         <form method="POST">
                             <div>
-                                <input id="redacteur" type="checkbox" name="actions[]" value="redacteur">
+                                <input id="redacteur" type="checkbox" name="claims[]" value="redacteur">
                                 <label for="redacteur">Redacteur</label>
                             </div>
                             <div>
-                                <input id="journalist" type="checkbox" name="actions[]" value="journalist">
+                                <input id="journalist" type="checkbox" name="claims[]" value="journalist">
                                 <label for="journalist">Journalist</label>
                             </div>
                             <div>
-                                <input id="fotograaf" type="checkbox" name="actions[]" value="fotograaf">
+                                <input id="fotograaf" type="checkbox" name="claims[]" value="fotograaf">
                                 <label for="fotograaf">Fotograaf</label>
                             </div>
                             <input id="submitclaim" type="submit" value="Verzenden">
@@ -200,43 +201,63 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     </main>';
                 }
 
+                try {
+                    $db = new PDO("mysql:host=mysql;dbname=Gemorskos;charset=utf8", "root", "qwerty");
+                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Evenement(evenement_id INT AUTO_INCREMENT NOT NULL, evenement_naam VARCHAR(40) NOT NULL, beschrijving TEXT NOT NULL, dag DATE DEFAULT NULL, tijd TIME DEFAULT NULL, straatnaam VARCHAR(26) NOT NULL, stad VARCHAR(40) NOT NULL, postcode VARCHAR(6) NOT NULL, PRIMARY KEY(evenement_id))");
+                    $cursor->execute();
+                    $cursor->closeCursor();
+                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Werk_Functie(werk_functie_id INT AUTO_INCREMENT NOT NULL, functie_naam VARCHAR(14) NOT NULL, PRIMARY KEY(werk_functie_id))");
+                    $cursor->execute();
+                    $cursor->closeCursor();
+                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Medewerkers(medewerker_id INT AUTO_INCREMENT NOT NULL, werk_functie_id INT NOT NULL, voornaam VARCHAR(25) NOT NULL, achternaam VARCHAR(25) NOT NULL, email VARCHAR(55) UNIQUE NOT NULL, telefoonnummer VARCHAR(10) UNIQUE NOT NULL, wachtwoord VARCHAR(60) NOT NULL, PRIMARY KEY(medewerker_id), FOREIGN KEY(werk_functie_id) REFERENCES Werk_Functie(werk_functie_id) ON UPDATE CASCADE ON DELETE NO ACTION)");
+                    $cursor->execute();
+                    $cursor->closeCursor();
+                    $cursor = $db->prepare("CREATE TABLE IF NOT EXISTS Evenement_Detail(redacteur_id INT DEFAULT NULL, journalist_id INT DEFAULT NULL, fotograaf_id INT DEFAULT NULL, evenement_id INT NOT NULL, FOREIGN KEY(redacteur_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(journalist_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(fotograaf_id) REFERENCES Medewerkers(medewerker_id) ON UPDATE CASCADE ON DELETE NO ACTION, FOREIGN KEY(evenement_id) REFERENCES Evenement(evenement_id) ON UPDATE CASCADE ON DELETE NO ACTION)");
+                    $cursor->execute();
+                    $cursor->closeCursor();
+                } catch (Exception $exc) {
+                    showMessage("De database is op dit moment niet bereikbaar. Probeer het later nog eens.");
+                }
                 if (isset($db)) {
                     if (!($id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT)) || !$event = getEvent($db, $id)) {
                         showMessage("Dit event bestaat niet.");
                     } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
                         showEvent($event);
                     } else if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                        if (isset($_POST["actions"])) {
-                            $actions = $_POST["actions"];
+                        if (isset($_POST["claims"])) {
+                            $claims = $_POST["claims"];
                             $redacteur = false;
                             $journalist = false;
                             $fotograaf = false;
-                            if (is_string($actions)) {
-                                if (!($action = filter_var($actions, FILTER_SANITIZE_SPECIAL_CHARS))) {
-                                    showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
+                            if (is_string($claims)) {
+                                if (!($claim = filter_var($claims, FILTER_SANITIZE_SPECIAL_CHARS))) {
+                                    showMessage("Er is iets fout gegaan. Probeer het later opnieuw.", $id);
                                 } else {
-                                    $redacteur = $action == "redacteur";
-                                    $journalist = $action == "journalist";
-                                    $fotograaf = $action == "fotograaf";
+                                    $redacteur = $claim == "redacteur";
+                                    $journalist = $claim == "journalist";
+                                    $fotograaf = $claim == "fotograaf";
                                 }
-                            } else if (is_array($actions)) {
-                                foreach($actions as $action) {
-                                    if (!($action = filter_var($action, FILTER_SANITIZE_SPECIAL_CHARS))) {
-                                        showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
+                            } else if (is_array($claims)) {
+                                foreach($claims as $claim) {
+                                    if (!($claim = filter_var($claim, FILTER_SANITIZE_SPECIAL_CHARS))) {
+                                        showMessage("Er is iets fout gegaan. Probeer het later opnieuw.", $id);
                                     } else {
-                                        $redacteur = $action == "redacteur";
-                                        $journalist = $action == "journalist";
-                                        $fotograaf = $action == "fotograaf";
+                                        $redacteur = $claim == "redacteur";
+                                        $journalist = $claim == "journalist";
+                                        $fotograaf = $claim == "fotograaf";
                                     }
                                 }
                             }
                             if ($redacteur || $journalist || $fotograaf) {
                                 claimEvent($db, $id, $redacteur, $journalist, $fotograaf);
                             } else {
-                                showMessage("Er is iets fout gegaan. Probeer het later opnieuw.");
+                                showMessage("Er is iets fout gegaan. Probeer het later opnieuw.", $id);
                             }
-                        } else {
-                            showClaim();
+                        } else if (!($action = filter_input(INPUT_POST, "action", FILTER_SANITIZE_SPECIAL_CHARS))) {
+                            $claims = checkFunctions($db, $id);
+                            showClaim($claims["redactor"], $claims["journalist"], $claims["photographer"]);
+                        } else if ($action == "") {
+                            # other actions
                         }
                     }
                 }
