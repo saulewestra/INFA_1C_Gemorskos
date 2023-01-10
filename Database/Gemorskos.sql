@@ -72,7 +72,7 @@ CREATE TABLE `Bestand` (
 -- Tabelstructuur voor tabel `Evenement_Detail`
 -- Met indexen voor de tabel
 --
-DROP TABLE IF EXISTS `Event_Detail`;
+DROP TABLE IF EXISTS `Evenement_Detail`;
 CREATE TABLE `Evenement_Detail` (
   `redacteur_id` int(11) DEFAULT NULL,
   `journalist_id` int(11) DEFAULT NULL,
