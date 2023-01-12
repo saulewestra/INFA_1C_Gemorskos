@@ -35,6 +35,11 @@ CREATE TABLE `Evenement` (
   PRIMARY KEY (`evenement_id`)
 );
 --
+-- Gegevens worden geëxporteerd voor tabel `Evenement`
+--
+INSERT INTO `Evenement`(`evenement_id`, `evenement_naam`, `beschrijving`, `dag`, `tijd`, `straatnaam`, `stad`, `postcode`)
+VALUES (NULL, "Schaatsbaan Emmen", "Schaatsbaan is in twee dagen gebouwd en er kan nu volop geschaatst worden. Voor jong en oud is genoeg plek om een warme chocomel te drinken.", "2022-12-22", "11:30:00", "Raadhuisplein", "Emmen", "7811 AP");
+--
 -- Tabelstructuur voor tabel `Medewerkers`
 -- Met indexen voor de tabel
 --
