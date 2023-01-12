@@ -9,57 +9,59 @@
     </head>
     <body>
         <div id="container">
-            <div id="background">
-                <header>
-                    <div id="logo">
-                        <h1 id="logoh">Gemorskos</h1>
-                        <p id="logop">Wij maken kranten</p>
-                    </div>
-                    <div id="acc">
-                        <img id="acc" src="" alt="acc">
-                    </div>
-                </header>   
-                <?php
+            <div id="background"></div>
+            <header id="header">
+                <div id="logo">
+                    <h1 id="logoh">Gemorskos</h1>
+                    <p id="logop">Wij maken kranten</p>
+                </div>
+                <div class="profile">
+                    <img id="acc" src="img/profilepic.png" alt="acc">
+                </div>
+            </header>   
+            <?php
+            $host = $_ENV['host'];
+            $username = $_ENV['username'];
+            $password = $_ENV['password'];
+            $database = $_ENV['database'];
+            try{
+                $dbConnect = new PDO ("mysql:host=$host;dbname=$username;charset=utf8", $username, $password);
+            }catch(Exception $error){
+                echo "<main id='event'><h1>Geen verbinding met de database</h1></main>";
+            }
+            if(isset($dbConnect)){
                 try{
-                    $dbConnect = new PDO ("mysql:host=mysql;dbname=Gemorskos;charset=utf8", "root", "qwerty");
+                    $stmt = $dbConnect->prepare("SELECT *
+                                                FROM `Evenement`");
+                    $stmt->bindColumn("evenement_id",$id);
+                    $stmt->bindColumn("evenement_naam",$evenementname);
+                    $stmt->bindColumn("beschrijving",$beschrijving);
+                    $stmt->bindColumn("datum",$datum);
+                    $stmt->bindColumn("straatnaam",$straatnaam);
+                    $stmt->bindColumn("stad",$stad);
+                    $stmt->bindColumn("postcode",$solution);
+                    $stmt->bindColumn("redacteur_id",$redacteurid);
+                    $stmt->bindColumn("journalist_id",$journalistid);
+                    $stmt->bindColumn("fotograaf_id",$fotograafid);
+                    $stmt->execute();                         
                 }catch(Exception $error){
-                    echo "<main id='content'><h1>Geen verbinding met de database</h1></main>";
+                    echo "<main id='content'><h1>Tabel niet gevonden</h1><main>";
                 }
-                if(isset($dbConnect)){
-                    try{
-                        $stmt = $dbConnect->prepare("SELECT *
-                                                    FROM `Evenement`");
-                        $stmt->bindColumn("evenement_id",$id);
-                        $stmt->bindColumn("evenement_naam",$evenementname);
-                        $stmt->bindColumn("beschrijving",$beschrijving);
-                        $stmt->bindColumn("datum",$datum);
-                        $stmt->bindColumn("straatnaam",$straatnaam);
-                        $stmt->bindColumn("stad",$stad);
-                        $stmt->bindColumn("postcode",$solution);
-                        $stmt->bindColumn("redacteur_id",$redacteurid);
-                        $stmt->bindColumn("journalist_id",$journalistid);
-                        $stmt->bindColumn("fotograaf_id",$fotograafid);
-                        $stmt->execute();                         
-                    }catch(Exception $error){
-                        echo "<main id='content'><h1>Tabel niet gevonden</h1><main>";
-                    }
-                    if(isset($stmt)) {
-                        echo '   
-                            <div>
-                            <h1> Overzicht van Events</h1>';
-                                while($result = $stmt->fetch()) {
-                                    echo '<div id="blockhome">
-                                        <a href="events/?id='.$id.'"><h1>'.$evenementname.'</h1>
-                                        </a>
-                                        </div>
-                                        <div id = "blockhome">
-                                        <p> '.$beschrijving.' </p>';
-                            }
-                            echo '</div>';
-                    }
+                if(isset($stmt)) {
+                    echo '   
+                        <div id="eventposition">
+                        <h1> Overzicht van Events</h1>';
+                            while($result = $stmt->fetch()) {
+                                echo '<a href="events/?id='.$id.'" id="event">
+                                    <h1>'.$evenementname.'</h1>
+                                    <p>'.$beschrijving.'</p>
+                                </a>';
+                                    
+                        }
+                        echo '</div>';
                 }
-                ?>
-            </div>
+            }
+            ?>
         </div>
     </body>
 </html>
