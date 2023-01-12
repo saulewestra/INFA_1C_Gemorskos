@@ -16,8 +16,13 @@ CREATE TABLE `Werk_Functie` (
 --
 -- Gegevens worden geëxporteerd voor tabel `Werk_Functie`
 --
-INSERT INTO `Werk_Functie`(`werk_functie_id`, `functie_naam`)
-VALUES (1, "Hoofdredacteur"), (2, "Redacteur"), (3, "Journalist"), (4, "Fotograaf"), (5, "Content Creator"), (6, "Freelancer");
+INSERT INTO `Werk_Functie`(`werk_functie_id`, `functie_naam`) VALUES 
+(1, "Hoofdredacteur"), 
+(2, "Redacteur"), 
+(3, "Journalist"), 
+(4, "Fotograaf"), 
+(5, "Content Creator"), 
+(6, "Freelancer");
 --
 -- Tabelstructuur voor tabel `Evenement`
 -- Met indexen voor de tabel
@@ -31,14 +36,14 @@ CREATE TABLE `Evenement` (
   `tijd` time DEFAULT NULL,
   `straatnaam` varchar(26) NOT NULL,
   `stad` varchar(40) NOT NULL,
-  `postcode` varchar(6) NOT NULL,
+  `postcode` varchar(7) NOT NULL,
   PRIMARY KEY (`evenement_id`)
 );
 --
 -- Gegevens worden geëxporteerd voor tabel `Evenement`
 --
-INSERT INTO `Evenement`(`evenement_id`, `evenement_naam`, `beschrijving`, `dag`, `tijd`, `straatnaam`, `stad`, `postcode`)
-VALUES (NULL, "Schaatsbaan Emmen", "Schaatsbaan is in twee dagen gebouwd en er kan nu volop geschaatst worden. Voor jong en oud is genoeg plek om een warme chocomel te drinken.", "2022-12-22", "11:30:00", "Raadhuisplein", "Emmen", "7811 AP");
+INSERT INTO `Evenement`(`evenement_id`, `evenement_naam`, `beschrijving`, `dag`, `tijd`, `straatnaam`, `stad`, `postcode`)VALUES 
+(NULL, "Schaatsbaan Emmen", "Schaatsbaan is in twee dagen gebouwd en er kan nu volop geschaatst worden. Voor jong en oud is genoeg plek om een warme chocomel te drinken.", "2022-12-22", "11:30:00", "Raadhuisplein", "Emmen", "7811 AP");
 --
 -- Tabelstructuur voor tabel `Medewerkers`
 -- Met indexen voor de tabel
@@ -55,6 +60,23 @@ CREATE TABLE `Medewerkers` (
   PRIMARY KEY (`medewerker_id`),
   FOREIGN KEY (`werk_functie_id`) REFERENCES `Werk_Functie` (`werk_functie_id`) ON DELETE NO ACTION ON UPDATE CASCADE
 );
+--
+-- Gegevens worden geëxporteerd voor tabel `Medewerkers`
+--
+INSERT INTO `Medewerkers`(`medewerker_id`, `werk_functie_id`, `voornaam`, `achternaam`, `email`, `telefoonnummer`, `wachtwoord`) VALUES 
+(NULL, 1, "Bart", "Oerlemans", "B.Oerlemans@gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 2, "Erik", "Jakops", "E.Jakops@Gemorskos.nl", "31-1234567", "Gemorskos01"), 
+(NULL, 2, "Jonny", "West", "J.West@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 2, "Jasper", "Roberts", "J.Roberts@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 3, "Hendrik", "Oever", "H.Oever@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 3, "Piet", "Zwart", "P.Zwart@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 3, "Sjaak", "Afhaak", "S.Afhaak@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 3, "Martijn", "Oostenbeek", "M.Oostenbeek@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 3, "Sander", "Peters", "S.P@Gemorskos", "31-1234567", "Gemorskos01"),
+(NULL, 4, "Bas", "Kuiper", "B.Kuiper@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 4, "James", "Frits", "J.Frits@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 4, "Kas", "Oranje", "K.Oranje@Gemorskos.nl", "31-1234567", "Gemorskos01"),
+(NULL, 6, "Thomas", "Oole", "T.Oole@Gemorskos.nl", "31-1234567", "Gemorskos01");
 --
 -- Tabelstructuur voor tabel `Bestand`
 -- Met indexen voor de tabel
