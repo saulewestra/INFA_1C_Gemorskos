@@ -1,7 +1,3 @@
-<?php
-
-?>
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -21,6 +17,15 @@
                 <a href="#"><img id="profile" src="../img/profilepic.png" alt="Profile"></a>
             </header>
             <div id="background"></div>
+            <div id="event">
+                <h1>Vul In:</h1>
+                <p>Vul hier jouw nieuwe wachtwoord en telefoonnummer in</p>
+                <form action="RegisterSucceed.php" method="POST">
+                    <p><input type="password" name="wachtwoord" placeholder=". . . . . . . . . . ."> :Nieuw wachtwoord</p>
+                    <p><input type="text" name="telefoonnummer" placeholder="31-1234567"> :Nieuw telefoonnummer</p>
+                    <p><input type="submit" name="submit" value="verzenden">
+                </form>
+            </div>
         </div>
     </body>
 </html>
