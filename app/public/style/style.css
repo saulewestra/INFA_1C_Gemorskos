@@ -463,21 +463,29 @@ input {
 	border-radius: 10px;
 }
 
-#uploadSubmit {
+#uploadSubmit, #textSubmit {
 	margin: 10px 0px 0px 0px;
 	font-size: 24px;
 	background-color: #00b478;
 	cursor: pointer;
 }
 
-#uploadDescription {
+#uploadSubmit:hover, #textSubmit:hover {
+    background-color: #00a065;
+}
+
+#uploadDescription, #uploadText {
 	margin-top: 90px;
 	width: 50%;
 	height: 60px;
 	resize: none;
 }
 
-#uploadDescription::placeholder {
+#uploadText {
+    margin-top: 0px;
+}
+
+#uploadDescription::placeholder, #uploadText::placeholder {
 	text-align: start;
 	color: grey;
 	font-weight: 100;

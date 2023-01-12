@@ -75,12 +75,12 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                         $result = $cursor->fetch(PDO::FETCH_ASSOC);
                         $cursor->closeCursor();
                         if (!$result) {
-                            return ["redactor" => false, "journalist" => false, "photographer" => false];
+                            return ["redactor" => false, "journalist" => true, "photographer" => false];
                         } else {
                             return ["redactor" => $result["redacteur_id"] == $medewerker_id, "journalist" => $result["journalist_id"] == $medewerker_id, "photographer" => $result["fotograaf_id"] == $medewerker_id];
                         }
                     } catch (Exception $exc) {
-                        return ["redactor" => false, "journalist" => false, "photographer" => false];
+                        return ["redactor" => false, "journalist" => true, "photographer" => false];
                     }
                 }
 
@@ -229,7 +229,18 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 }
 
                 function journalistPage(PDO $db, int $id): void {
-
+                    if (!checkFunctions($db)["journalist"]) {
+                        showMessage("U heeft niet voldoende rechten om tekst toe te voegen.", $id);
+                    } else {
+                        echo '<main id="event">
+                            <form method="POST">
+                                <div id="uploadButton">
+                                    <textarea id="uploadText" name="text" placeholder="Text"></textarea>
+                                    <input id="textSubmit" type="submit" name="action" value="Add Text">
+                                </div>
+                            </form>
+                        </main>';
+                    }
                 }
 
                 function uploadPage(PDO $db, int $id): void {
@@ -251,42 +262,78 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 
                 function uploadFile(PDO $db, int $id): void {
                     global $medewerker_id;
-                    if (!is_dir("../files")) {
-                        mkdir("../files");
-                    }
-                    if (!isset($_FILES["file"])) {
-                        showMessage("U heeft geen bestanden toegevoegd.", $id);
-                    } else if ($_FILES["file"]["error"] != 0) {
-                        showMessage("Er is iets fout gegaan tijdens het uploaden.", $id);
-                    } else if (explode("/", finfo_file(finfo_open(FILEINFO_MIME_TYPE), $_FILES["file"]["tmp_name"]), 2)[0] != "image") {
-                        showMessage("Bestand moet een afbeelding zijn.", $id);
-                    } else if (strlen($_FILES["file"]["name"]) > 200) {
-                        showMessage("Bestandsnaam kan niet langer dan 200 karakters zijn.", $id);
-                    } else if (file_exists("../files/".$_FILES["file"]["name"])) {
-                        showMessage("Dit bestand bestaat al.", $id);
-                    } else if (!move_uploaded_file($_FILES["file"]["tmp_name"], "../files/".$_FILES["file"]["name"])) {
-                        showMessage("Er is iets fout gegaan tijdens het uploaden.", $id);
+                    if (!checkFunctions($db)["photographer"]) {
+                        showMessage("U heeft niet voldoende rechten om bestanden te uploaden.", $id);
                     } else {
-                        try {
-                            $filename = $_FILES["file"]["name"];
-                            $filesize = $_FILES["file"]["size"];
-                            $filetype = explode("/", finfo_file(finfo_open(FILEINFO_MIME_TYPE), "../files/".$_FILES["file"]["name"]))[0];
-                            $uploadDate = date('Y-m-d H:i:s');
-                            $description = (isset($_POST["description"])) ? $_POST["description"] : "";
-                            $cursor = $db->prepare("INSERT INTO Bestand(medewerker_id, evenement_id, bestandsnaam, bestand_grootte_bytes, bestand_type, upload_datum, beschrijving) VALUES(:employee_id, :event_id, :filename, :filesize, :filetype, :upload_date, :description)");
-                            $cursor->bindParam("employee_id", $medewerker_id);
-                            $cursor->bindParam("event_id", $id);
-                            $cursor->bindParam("filename", $filename);
-                            $cursor->bindParam("filesize", $filesize);
-                            $cursor->bindParam("filetype", $filetype);
-                            $cursor->bindParam("upload_date", $uploadDate);
-                            $cursor->bindParam("description", $description);
-                            $cursor->execute();
-                            $cursor->closeCursor();
-                            showMessage("Bestand succesvol geüpload.", $id);
-                        } catch (Exception $exc) {
-                            unlink("../files/".$_FILES["file"]["name"]);
+                        if (!is_dir("../files")) {
+                            mkdir("../files");
+                        }
+                        if (!isset($_FILES["file"])) {
+                            showMessage("U heeft geen bestanden toegevoegd.", $id);
+                        } else if ($_FILES["file"]["error"] != 0) {
                             showMessage("Er is iets fout gegaan tijdens het uploaden.", $id);
+                        } else if (explode("/", finfo_file(finfo_open(FILEINFO_MIME_TYPE), $_FILES["file"]["tmp_name"]), 2)[0] != "image") {
+                            showMessage("Bestand moet een afbeelding zijn.", $id);
+                        } else if (strlen($_FILES["file"]["name"]) > 200) {
+                            showMessage("Bestandsnaam kan niet langer dan 200 karakters zijn.", $id);
+                        } else if (file_exists("../files/".$_FILES["file"]["name"])) {
+                            showMessage("Dit bestand bestaat al.", $id);
+                        } else if (!move_uploaded_file($_FILES["file"]["tmp_name"], "../files/".$_FILES["file"]["name"])) {
+                            showMessage("Er is iets fout gegaan tijdens het uploaden.", $id);
+                        } else {
+                            try {
+                                $filename = $_FILES["file"]["name"];
+                                $filesize = $_FILES["file"]["size"];
+                                $filetype = explode("/", finfo_file(finfo_open(FILEINFO_MIME_TYPE), "../files/".$_FILES["file"]["name"]))[0];
+                                $uploadDate = date('Y-m-d H:i:s');
+                                $description = (isset($_POST["description"])) ? $_POST["description"] : "";
+                                $cursor = $db->prepare("INSERT INTO Bestand(medewerker_id, evenement_id, bestandsnaam, bestand_grootte_bytes, bestand_type, upload_datum, beschrijving) VALUES(:employee_id, :event_id, :filename, :filesize, :filetype, :upload_date, :description)");
+                                $cursor->bindParam("employee_id", $medewerker_id);
+                                $cursor->bindParam("event_id", $id);
+                                $cursor->bindParam("filename", $filename);
+                                $cursor->bindParam("filesize", $filesize);
+                                $cursor->bindParam("filetype", $filetype);
+                                $cursor->bindParam("upload_date", $uploadDate);
+                                $cursor->bindParam("description", $description);
+                                $cursor->execute();
+                                $cursor->closeCursor();
+                                showMessage("Bestand succesvol geüpload.", $id);
+                            } catch (Exception $exc) {
+                                unlink("../files/".$_FILES["file"]["name"]);
+                                showMessage("Er is iets fout gegaan tijdens het uploaden.", $id);
+                            }
+                        }
+                    }
+                }
+
+                function addText(PDO $db, int $id): void {
+                    global $medewerker_id;
+                    if (!checkFunctions($db)["journalist"]) {
+                        showMessage("U heeft niet voldoende rechten om bestanden te uploaden.", $id);
+                    } else {
+                        if (!isset($_POST["text"]) || strlen($_POST["text"]) == 0) {
+                            showMessage("Tekst kan niet leeg zijn.", $id);
+                        } else {
+                            try {
+                                $filename = "";
+                                $filesize = 0;
+                                $filetype = "text";
+                                $uploadDate = date('Y-m-d H:i:s');
+                                $description = $_POST["text"];
+                                $cursor = $db->prepare("INSERT INTO Bestand(medewerker_id, evenement_id, bestandsnaam, bestand_grootte_bytes, bestand_type, upload_datum, beschrijving) VALUES(:employee_id, :event_id, :filename, :filesize, :filetype, :upload_date, :description)");
+                                $cursor->bindParam("employee_id", $medewerker_id);
+                                $cursor->bindParam("event_id", $id);
+                                $cursor->bindParam("filename", $filename);
+                                $cursor->bindParam("filesize", $filesize);
+                                $cursor->bindParam("filetype", $filetype);
+                                $cursor->bindParam("upload_date", $uploadDate);
+                                $cursor->bindParam("description", $description);
+                                $cursor->execute();
+                                $cursor->closeCursor();
+                                showMessage("Tekst toegevoegd.", $id);
+                            } catch (Exception $exc) {
+                                showMessage("Er is iets fout gegaan tijdens het toevoegen.", $id);
+                            }
                         }
                     }
                 }
@@ -353,6 +400,8 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             uploadPage($db, $id);
                         } else if ($action == "Upload") {
                             uploadFile($db, $id);
+                        } else if ($action == "Add Text") {
+                            addText($db, $id);
                         }
                     }
                 }
