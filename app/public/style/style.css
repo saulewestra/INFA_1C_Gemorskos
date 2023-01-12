@@ -39,7 +39,7 @@ header {
 	height: 100px;
 	background-color: #ECF3FF;
 	z-index: 9;
-	box-shadow: 0 0 5px 2px grey;
+	box-shadow: 0 0 5px 2px gray;
 }
 
 	header > .logo {
@@ -60,7 +60,7 @@ header {
 		border-radius: 100%;
 		height: 50px;
 		width: 50px;
-		background-color: lightgrey;
+		background-color: lightgray;
 		margin-left: auto;
 		margin-right: 40px;
 		align-self: center;
@@ -76,7 +76,7 @@ header {
 			border-radius: 100%;
 			height: 50px;
 			width: 50px;
-			border: 3px solid lightgrey;
+			border: 3px solid lightgray;
 		}
 
 .Main {
@@ -226,7 +226,7 @@ header {
 		background-image: url("../img/centerbo.png");
 		color: #3501CA;
 		font-size: 25px;
-		box-shadow: 0 0 10px 2px grey;
+		box-shadow: 0 0 10px 2px gray;
 	}
 
 		.login > div > div {
@@ -277,7 +277,7 @@ input {
 	grid-column: 1/3;
 	justify-content: center;
 	justify-items: center;
-	color: grey;
+	color: gray;
 	
 }
 
@@ -301,7 +301,7 @@ input {
     grid-column: 1/7;
     height: 100px;
     background-color: #ECF3FF;
-    box-shadow: 0 0 5px 2px grey;
+    box-shadow: 0 0 5px 2px gray;
     justify-content: space-between;
     z-index: 1;
 }
@@ -352,7 +352,7 @@ input {
     margin-top: 30px;
     background-color: white;
     grid-column: 2/6;
-    box-shadow: 0 0 5px 2px grey;
+    box-shadow: 0 0 5px 2px gray;
     padding: 0px 30px 30px 30px;
 }
 
@@ -392,7 +392,7 @@ input {
     margin-top: 30px;
     background-color: white;
     grid-column: 2/6;
-    box-shadow: 0 0 5px 2px grey;
+    box-shadow: 0 0 5px 2px gray;
     padding: 20px 30px 30px 30px;
     font-size: 24px;
 }
@@ -487,6 +487,32 @@ input {
 
 #uploadDescription::placeholder, #uploadText::placeholder {
 	text-align: start;
-	color: grey;
+	color: gray;
 	font-weight: 100;
+}
+
+#submissions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    grid-column: 1/7;
+}
+
+.submission {
+    background-color: white;
+    box-shadow: 0 0 5px 2px gray;
+    padding:  30px;
+    width: 50%;
+    margin-top: 30px;
+}
+
+.submission img {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.footerText {
+    font-size: 12px;
+    color: gray;
+    margin-top: 10px;
 }
