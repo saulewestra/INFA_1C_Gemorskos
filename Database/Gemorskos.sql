@@ -87,7 +87,7 @@ CREATE TABLE `Bestand` (
   `medewerker_id` int(11) NOT NULL,
   `evenement_id` int(11) NOT NULL,
   `bestandsnaam` varchar(40) DEFAULT NULL,
-  `bestand_grootte_MB` int(11) NOT NULL,
+  `bestand_grootte_byte` int(12) NOT NULL,
   `bestand_type` varchar(10) NOT NULL,
   `upload_datum` date DEFAULT NULL,
   `beschrijving` text NOT NULL,
