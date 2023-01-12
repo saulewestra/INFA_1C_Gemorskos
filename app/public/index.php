@@ -12,21 +12,18 @@ if (session_status() != PHP_SESSION_ACTIVE) {
         <title>Home</title>
     </head>
     <body>
-        <div id="container">
-            <div id="background"></div>
+        <div id="wrapper">
             <header id="header">
                 <div id="logo">
                     <h1 id="logoh">Gemorskos</h1>
                     <p id="logop">Wij maken kranten</p>
                 </div>
-                <div class="profile">
-                    <img id="acc" src="img/profilepic.png" alt="Profile">
-                </div>
+                <img id="profile" src="img/profilepic.png" alt="Profile">
             </header>   
             <?php
             if (!isset($_SESSION["id"])) {
                 echo '<main id="content">
-                    <h1>Je bent niet ingelogd</h1>
+                    <h1>Je bent niet ingelogd.</h1>
                     <h3>Klik <a href="login">hier</a> om naar de inlogpagina te gaan</h3>
                 </main>';
             } else {
@@ -68,5 +65,6 @@ if (session_status() != PHP_SESSION_ACTIVE) {
             }
             ?>
         </div>
+        <div id="background"></div>
     </body>
 </html>
