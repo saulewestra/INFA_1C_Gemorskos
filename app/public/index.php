@@ -58,6 +58,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             }
                             echo '</div>';
                         }
+                        $cursor->closeCursor();
                     } catch(Exception $exc) {
                         echo '<main id="content"><h1>Er zijn geen events beschikbaar op dit moment.</h1><main>';
                     }
