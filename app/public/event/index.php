@@ -9,7 +9,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="../style/style.css">
-        <title>Evenement</title>
+        <title>Event</title>
     </head>
     <body>
         <div id="wrapper">
