@@ -416,3 +416,55 @@ input {
 #submitclaim:hover {
     background-color: #00a065;
 }
+
+#uploadButton {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	top: 20px;
+}
+
+#fileButton {
+	position: absolute;
+	width: 30%;
+	height: 60px;
+	background-color: #00b478;
+	text-align: center;
+	line-height: 55px;
+	padding: 10px;
+	border-radius: 10px;
+	font-size: 24px;
+}
+
+#fileUpload {
+	position: absolute;
+	width: 30%;
+	height: 60px;
+	text-align: center;
+	filter: opacity(0);
+	cursor: pointer;
+	z-index: 1;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+#uploadSubmit {
+	margin: 10px 0px 0px 0px;
+	font-size: 24px;
+	background-color: #00b478;
+	cursor: pointer;
+}
+
+#uploadDescription {
+	margin-top: 90px;
+	width: 50%;
+	height: 60px;
+	resize: none;
+}
+
+#uploadDescription::placeholder {
+	text-align: start;
+	color: grey;
+	font-weight: 100;
+}
