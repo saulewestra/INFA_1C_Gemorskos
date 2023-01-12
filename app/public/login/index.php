@@ -28,55 +28,52 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 </main>';
             }
 
-            if ($_SERVER["REQUEST_METHOD"] == "GET") {
-                if (!isset($_SESSION["id"])) {
-                    echo '<form id="login" method="POST">
-                        <div id="loginBackground"></div>
-                        <div id="loginBackground2"></div>
-                        <h1>Gemorskos</h1>
-                        <input type="text" name="firstname" placeholder="Voornaam">
-                        <input type="text" name="surname" placeholder="Achternaam">
-                        <input type="password" name="password" placeholder="Wachtwoord">
-                        <input type="submit" value="Login">
-                    </form>';
-                } else {
-                    echo '<main id="content">
-                        <h1>Je bent al ingelogd.</h1>
-                        <h3>Klik <a href="..">hier</a> om naar de homepagina te gaan</h3>
-                    </main>';
-                }
+            if (isset($_SESSION["id"])) {
+                echo '<main id="content">
+                    <h1>Je bent al ingelogd.</h1>
+                    <h3>Klik <a href="..">hier</a> om naar de homepagina te gaan</h3>
+                </main>';
+            } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
+                echo '<form id="login" method="POST">
+                    <div id="loginBackground"></div>
+                    <div id="loginBackground2"></div>
+                    <h1>Login</h1>
+                    <input type="email" name="email" placeholder="E-mailadres">
+                    <input type="password" name="password" placeholder="Wachtwoord">
+                    <input type="submit" value="Login">
+                </form>';
             } else if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $host = $_ENV['host'];
                 $dbUsername = $_ENV['username'];
                 $dbPassword = $_ENV['password'];
                 $database = $_ENV['database'];
-                if (!($firstname = filter_input(INPUT_POST, "firstname", FILTER_SANITIZE_SPECIAL_CHARS))) {
-                    showMessage("Onjuiste inloggegevens.");
-                } else if (!($surname = filter_input(INPUT_POST, "surname", FILTER_SANITIZE_SPECIAL_CHARS))) {
+                if (!($email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL)) || !($email = filter_var($email, FILTER_VALIDATE_EMAIL))) {
                     showMessage("Onjuiste inloggegevens.");
                 } else if (!($password = filter_input(INPUT_POST, "password", FILTER_SANITIZE_SPECIAL_CHARS))) {
                     showMessage("Onjuiste inloggegevens.");
                 } else {
-                    $db = new PDO("mysql:host=$host;dbname=$database;charset=utf8", $dbUsername, $dbPassword);
-                    $cursor = $db->prepare("SELECT medewerker_id, wachtwoord FROM Medewerkers WHERE voornaam = :firstname AND achternaam = :surname");
-                    $cursor->bindParam("firstname", $firstname);
-                    $cursor->bindParam("surname", $surname);
-                    $cursor->execute();
-                    if ($cursor->rowCount() == 0) {
-                        showMessage("Onjuiste inloggegevens.");
-                    } else {
-                        $result = $cursor->fetch(PDO::FETCH_NUM);
-                        var_dump($result);
-                        echo $password;
-                        if (!password_verify($password, $result[1])) {
+                    try {
+                        $db = new PDO("mysql:host=$host;dbname=$database;charset=utf8", $dbUsername, $dbPassword);
+                        $cursor = $db->prepare("SELECT medewerker_id, wachtwoord FROM Medewerkers WHERE email = :email");
+                        $cursor->bindParam("email", $email);
+                        $cursor->execute();
+                        if ($cursor->rowCount() == 0) {
                             showMessage("Onjuiste inloggegevens.");
                         } else {
-                            $_SESSION["id"] = $result[0];
-                            echo '<main id="content">
-                                <h1>Succesvol ingelogd.</h1>
-                                <h3>Klik <a href="..">hier</a> om naar de homepagina te gaan</h3>
-                            </main>';
+                            $result = $cursor->fetch(PDO::FETCH_NUM);
+                            if (!password_verify($password, $result[1])) {
+                                showMessage("Onjuiste inloggegevens.");
+                            } else {
+                                $_SESSION["id"] = $result[0];
+                                echo '<main id="content">
+                                    <h1>Succesvol ingelogd.</h1>
+                                    <h3>Klik <a href="..">hier</a> om naar de homepagina te gaan</h3>
+                                </main>';
+                            }
                         }
+                        $cursor->closeCursor();
+                    } catch (Exception $exc) {
+                        showMessage("Er is iets fout gegaan tijdens het inloggen. Probeer het later opnieuw.");
                     }
                 }
             }

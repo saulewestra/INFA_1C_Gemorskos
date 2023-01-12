@@ -9,7 +9,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="../style/style.css">
-        <title>Event</title>
+        <title>Evenement</title>
     </head>
     <body>
         <div id="wrapper">
@@ -51,6 +51,9 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     if (!$claims["redactor"] && !$claims["journalist"] && !$claims["photographer"]) {
                         echo '<input type="submit" value="Claim">';
                     } else {
+                        if ($claims["headredactor"]) {
+                            echo '<input type="submit" name="action" value="Verwijder Event">';
+                        }
                         if ($claims["redactor"]) {
                             echo '<input type="submit" name="action" value="Bekijk Submissies">';
                         }
@@ -187,6 +190,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             return ["redactor" => false, "journalist" => false, "photographer" => false];
                         } else {
                             $functions = [];
+                            $functions["headredactor"] = $workFunction[0] == 1;
                             $functions["redactor"] = $workFunction[0] == 2;
                             $functions["journalist"] = $workFunction[0] == 3 || $workFunction[0] == 6;
                             $functions["photographer"] = $workFunction[0] == 4 || $workFunction[0] == 6;
@@ -224,22 +228,27 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     if (!checkFunctions($db)["redactor"]) {
                         showMessage("U heeft niet voldoende rechten om submissies te bekijken.", $id);
                     } else {
-                        $cursor = $db->prepare("SELECT Medewerkers.voornaam, Medewerkers.achternaam, Bestand.bestandsnaam, Bestand.bestand_type, Bestand.upload_datum, Bestand.beschrijving FROM Bestand JOIN Medewerkers ON Bestand.medewerker_id = Medewerkers.medewerker_id WHERE Bestand.evenement_id = :id ORDER BY upload_datum DESC");
-                        $cursor->bindParam("id", $id, PDO::PARAM_INT);
-                        $cursor->execute();
-                        if ($cursor->rowCount() == 0) {
-                            showMessage("Er zijn nog geen submissies toegevoegd.", $id);
-                        } else {
-                            echo '<main id="submissions">';
-                            while ($submission = $cursor->fetch(PDO::FETCH_ASSOC)) {
-                                echo '<div class="submission">';
-                                if ($submission["bestand_type"] != "text") {
-                                    echo '<img src="../files/'.$submission["bestandsnaam"].'" alt="'.$submission["bestandsnaam"].'">';
+                        try {
+                            $cursor = $db->prepare("SELECT Medewerkers.voornaam, Medewerkers.achternaam, Bestand.bestandsnaam, Bestand.bestand_type, Bestand.upload_datum, Bestand.beschrijving FROM Bestand JOIN Medewerkers ON Bestand.medewerker_id = Medewerkers.medewerker_id WHERE Bestand.evenement_id = :id ORDER BY upload_datum DESC");
+                            $cursor->bindParam("id", $id, PDO::PARAM_INT);
+                            $cursor->execute();
+                            if ($cursor->rowCount() == 0) {
+                                showMessage("Er zijn nog geen submissies toegevoegd.", $id);
+                            } else {
+                                echo '<main id="submissions">';
+                                while ($submission = $cursor->fetch(PDO::FETCH_ASSOC)) {
+                                    echo '<div class="submission">';
+                                    if ($submission["bestand_type"] != "text") {
+                                        echo '<img src="../files/'.$submission["bestandsnaam"].'" alt="'.$submission["bestandsnaam"].'">';
+                                    }
+                                    echo '<p>'.$submission["beschrijving"].'</p>
+                                        <p class="footerText">Geüpload door '.$submission["voornaam"].' '.$submission["achternaam"].' op '.$submission["upload_datum"].'</p>
+                                    </div>';
                                 }
-                                echo '<p>'.$submission["beschrijving"].'</p>
-                                    <p class="footerText">Geüpload door '.$submission["voornaam"].' '.$submission["achternaam"].' op '.$submission["upload_datum"].'</p>
-                                </div>';
                             }
+                            $cursor->closeCursor();
+                        } catch (Exception $exc) {
+                            showMessage("Er is iets fout gegaan. Probeer het later opnieuw.", $id);
                         }
                     }
                 }
@@ -337,10 +346,10 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                 $uploadDate = date('Y-m-d H:i:s');
                                 $description = $_POST["text"];
                                 $cursor = $db->prepare("INSERT INTO Bestand(medewerker_id, evenement_id, bestandsnaam, bestand_grootte_bytes, bestand_type, upload_datum, beschrijving) VALUES(:employee_id, :event_id, :filename, :filesize, :filetype, :upload_date, :description)");
-                                $cursor->bindParam("employee_id", $employeeId);
-                                $cursor->bindParam("event_id", $id);
+                                $cursor->bindParam("employee_id", $employeeId, PDO::PARAM_INT);
+                                $cursor->bindParam("event_id", $id, PDO::PARAM_INT);
                                 $cursor->bindParam("filename", $filename);
-                                $cursor->bindParam("filesize", $filesize);
+                                $cursor->bindParam("filesize", $filesize, PDO::PARAM_INT);
                                 $cursor->bindParam("filetype", $filetype);
                                 $cursor->bindParam("upload_date", $uploadDate);
                                 $cursor->bindParam("description", $description);
@@ -350,6 +359,31 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             } catch (Exception $exc) {
                                 showMessage("Er is iets fout gegaan tijdens het toevoegen.", $id);
                             }
+                        }
+                    }
+                }
+
+                function deleteEvent(PDO $db, int $id): void {
+                    if (!checkFunctions($db)["journalist"]) {
+                        showMessage("U heeft niet voldoende rechten om bestanden te verwijderen.", $id);
+                    } else {
+                        try {
+                            $cursor = $db->prepare("SELECT bestandsnaam FROM Bestand WHERE evenement_id = :id");
+                            $cursor->bindParam("id", $id, PDO::PARAM_INT);
+                            $cursor->execute();
+                            while ($file = $cursor->fetch(PDO::FETCH_NUM)) {
+                                if (file_exists("../files/".$file[0])) {
+                                    unlink("../files/".$file[0]);
+                                }
+                            }
+                            $cursor->closeCursor();
+                            $cursor = $db->prepare("DELETE FROM Evenement WHERE evenement_id = :id");
+                            $cursor->bindParam("id", $id, PDO::PARAM_INT);
+                            $cursor->execute();
+                            $cursor->closeCursor();
+                            showMessage("Event verwijderd.");
+                        } catch (Exception $exc) {
+                            showMessage("Er is iets fout gegaan tijdens het verwijderen.", $id);
                         }
                     }
                 }
@@ -406,6 +440,8 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             uploadFile($db, $id);
                         } else if ($action == "Add Text") {
                             addText($db, $id);
+                        } else if ($action == "Verwijder Event") {
+                            deleteEvent($db, $id);
                         }
                     }
                 }
