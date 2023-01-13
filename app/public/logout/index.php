@@ -86,5 +86,6 @@ if (session_status() != PHP_SESSION_ACTIVE) {
             }
             ?>
         </div>
+        <div id="background"></div>
     </body>
 </html>

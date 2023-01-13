@@ -85,7 +85,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     </main>';
                 }
 
-                function showEvent(array $event, array $claims): void {
+                function showEvent(array $event, array $claims, array $functions): void {
                     echo '<main id="event">
                         <h1>'.$event["evenement_naam"].'</h1>
                         <p>'.$event["beschrijving"].'</p>
@@ -96,10 +96,12 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                         <div id="buttons">
                         <form method="POST">
                     ';
-                    if (!$claims["redactor"] && !$claims["journalist"] && !$claims["photographer"]) {
+                    if ($functions["headredactor"]) {
+                        echo '<input type="submit" name="action" value="Verwijder Event">';
+                    } else if (!$claims["redactor"] && !$claims["journalist"] && !$claims["photographer"]) {
                         echo '<input type="submit" value="Claim">';
                     } else {
-                        if ($claims["headredactor"]) {
+                        if ($functions["headredactor"]) {
                             echo '<input type="submit" name="action" value="Verwijder Event">';
                         }
                         if ($claims["redactor"]) {
@@ -154,6 +156,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 }
 
                 function claimEvent(PDO $db, int $id, bool $redacteur, bool $journalist, bool $fotograaf): void {
+                    global $employeeId;
                     if (!isset($_SESSION["id"])) {
                         echo '<main id="content">
                             <h1>Je bent niet ingelogd.</h1>
@@ -175,8 +178,9 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                     $cursor->execute();
                                     $result = $cursor->fetch();
                                     $cursor->closeCursor();
-                                    if ($result) {
+                                    if ($result && $result["redacteur_id"]) {
                                         showMessage("Dit event heeft al een redacteur.", $id);
+                                        return;
                                     } else {
                                         $cursor = $db->prepare("UPDATE Evenement_Detail SET redacteur_id = :id WHERE evenement_id = :event_id");
                                         $cursor->bindParam("id", $employeeId, PDO::PARAM_INT);
@@ -191,8 +195,9 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                     $cursor->execute();
                                     $result = $cursor->fetch();
                                     $cursor->closeCursor();
-                                    if ($result) {
+                                    if ($result && $result["journalist_id"]) {
                                         showMessage("Dit event heeft al een journalist.", $id);
+                                        return;
                                     } else {
                                         $cursor = $db->prepare("UPDATE Evenement_Detail SET journalist_id = :id WHERE evenement_id = :event_id");
                                         $cursor->bindParam("id", $employeeId, PDO::PARAM_INT);
@@ -207,8 +212,9 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                     $cursor->execute();
                                     $result = $cursor->fetch();
                                     $cursor->closeCursor();
-                                    if ($result) {
+                                    if ($result && $result["fotograaf_id"]) {
                                         showMessage("Dit event heeft al een fotograaf.", $id);
+                                        return;
                                     } else {
                                         $cursor = $db->prepare("UPDATE Evenement_Detail SET fotograaf_id = :id WHERE evenement_id = :event_id");
                                         $cursor->bindParam("id", $employeeId, PDO::PARAM_INT);
@@ -220,7 +226,6 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                 showMessage("Rollen succesvol geclaimed.", $id);
                             }
                         } catch (Exception $exc) {
-                            echo $exc;
                             showMessage("Er is iets fout gegaan. Probeer het later opnieuw.", $id);
                         }
                     }
@@ -267,7 +272,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                 <input id="fotograaf" type="checkbox" name="claims[]" value="fotograaf"'.$photographerDisabled.'>
                                 <label for="fotograaf">Fotograaf</label>
                             </div>
-                            <input id="submitclaim" type="submit" value="Verzenden">
+                            <input id="submitclaim" type="submit" value="Claim">
                         </form>
                     </main>';
                 }
@@ -412,8 +417,8 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 }
 
                 function deleteEvent(PDO $db, int $id): void {
-                    if (!checkFunctions($db)["journalist"]) {
-                        showMessage("U heeft niet voldoende rechten om bestanden te verwijderen.", $id);
+                    if (!checkFunctions($db)["headredactor"]) {
+                        showMessage("U heeft niet voldoende rechten om dit event te verwijderen.", $id);
                     } else {
                         try {
                             $cursor = $db->prepare("SELECT bestandsnaam FROM Bestand WHERE evenement_id = :id");
@@ -440,7 +445,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     if (!($id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT)) || !$event = getEvent($db, $id)) {
                         showMessage("Dit event bestaat niet.");
                     } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
-                        showEvent($event, checkClaims($db, $id));
+                        showEvent($event, checkClaims($db, $id), checkFunctions($db));
                     } else if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         if (isset($_POST["claims"])) {
                             $claims = $_POST["claims"];
