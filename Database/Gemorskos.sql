@@ -58,7 +58,7 @@ CREATE TABLE `Medewerkers` (
   `telefoonnummer` varchar(10) NOT NULL,
   `wachtwoord` varchar(60) NOT NULL,
   PRIMARY KEY (`medewerker_id`),
-  FOREIGN KEY (`werk_functie_id`) REFERENCES `Werk_Functie` (`werk_functie_id`) ON DELETE NO ACTION ON UPDATE CASCADE
+  FOREIGN KEY (`werk_functie_id`) REFERENCES `Werk_Functie` (`werk_functie_id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 --
 -- Gegevens worden geëxporteerd voor tabel `Medewerkers`
@@ -92,8 +92,8 @@ CREATE TABLE `Bestand` (
   `upload_datum` date DEFAULT NULL,
   `beschrijving` text NOT NULL,
   PRIMARY KEY (`bestand_id`),
-  FOREIGN KEY (`medewerker_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  FOREIGN KEY (`evenement_id`) REFERENCES `Evenement` (`evenement_id`) ON DELETE NO ACTION ON UPDATE CASCADE
+  FOREIGN KEY (`medewerker_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`evenement_id`) REFERENCES `Evenement` (`evenement_id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 --
 -- Tabelstructuur voor tabel `Evenement_Detail`
@@ -105,8 +105,8 @@ CREATE TABLE `Evenement_Detail` (
   `journalist_id` int(11) DEFAULT NULL,
   `fotograaf_id` int(11) DEFAULT NULL,
   `evenement_id` int(11) NOT NULL,
-  FOREIGN KEY (`redacteur_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  FOREIGN KEY (`journalist_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  FOREIGN KEY (`fotograaf_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  FOREIGN KEY (`evenement_id`) REFERENCES `Evenement` (`evenement_id`) ON DELETE NO ACTION ON UPDATE CASCADE
+  FOREIGN KEY (`redacteur_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`journalist_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`fotograaf_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`evenement_id`) REFERENCES `Evenement` (`evenement_id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
