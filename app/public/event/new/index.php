@@ -50,14 +50,11 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     <h3>Klik <a href="../../login">hier</a> om naar de inlogpagina te gaan</h3>
                 </main>';
             } else {
-                $host = $_ENV["host"];
-                $username = $_ENV["username"];
-                $password = $_ENV["password"];
-                $database = $_ENV["database"];
+                include '../../constants.php';
                 $employeeId = $_SESSION["id"];
 
                 try {
-                    $db = new PDO("mysql:host=$host;dbname=$database;charset=utf8", $username, $password);
+                    $db = new PDO("mysql:host=$DB_SERVER;dbname=$DB_NAME;charset=utf8", $DB_ROOT_USER, $DB_ROOT_PASSWORD);
                 } catch (Exception $exc) {
                     showMessage("De database is op dit moment niet bereikbaar. Probeer het later nog eens.");
                 }

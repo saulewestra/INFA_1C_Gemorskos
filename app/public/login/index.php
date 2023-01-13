@@ -50,13 +50,10 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 </main>';
             }
 
-            $host = $_ENV["host"];
-            $dbUsername = $_ENV["username"];
-            $dbPassword = $_ENV["password"];
-            $database = $_ENV["database"];
+            include '../constants.php';
 
             try {
-                $db = new PDO("mysql:host=$host;dbname=$database;charset=utf8", $dbUsername, $dbPassword);
+                $db = new PDO("mysql:host=$DB_SERVER;dbname=$DB_NAME;charset=utf8", $DB_ROOT_USER, $DB_ROOT_PASSWORD);
             } catch (Exception $exc) {
                 showMessage("De database is op dit moment niet bereikbaar. Probeer het later opnieuw.");
             }
@@ -94,10 +91,6 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             <input type="submit" value="Login">
                         </form>';
                     } else if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                        $host = $_ENV['host'];
-                        $dbUsername = $_ENV['username'];
-                        $dbPassword = $_ENV['password'];
-                        $database = $_ENV['database'];
                         if (!($email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL)) || !($email = filter_var($email, FILTER_VALIDATE_EMAIL))) {
                             showMessage("Onjuiste inloggegevens.");
                         } else if (!($password = filter_input(INPUT_POST, "password", FILTER_SANITIZE_SPECIAL_CHARS))) {

@@ -15,11 +15,6 @@ services:
         build:
             context: .
             dockerfile: PHP.dockerfile
-        environment:
-            - host=${DB_SERVER}
-            - username=${DB_ROOT_USER}
-            - password=${DB_ROOT_PASSWORD}
-            - database=${DB_NAME}
         volumes:
             - ./app:/app
             - ./custom.php.ini:/usr/local/etc/php/conf.d/php.ini
