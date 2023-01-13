@@ -220,7 +220,11 @@ header a img {
     margin-top: 30px;
 }
 
-#buttons input {
+#buttons input:not(:last-child) {
+    margin-right: 30px;
+}
+
+#buttons input, #textSubmit, #uploadSubmit {
     padding: 20px 40px 20px 40px;
     font-size: 20px;
     cursor: pointer;
@@ -232,6 +236,10 @@ header a img {
 
 #buttons input:hover {
     background-color: #00a065;
+}
+
+#uploadText, #uploadDescription {
+    border: solid black 1px;
 }
 
 #claim {

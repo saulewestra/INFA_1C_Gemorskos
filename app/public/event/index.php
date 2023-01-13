@@ -98,21 +98,18 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     ';
                     if ($functions["headredactor"]) {
                         echo '<input type="submit" name="action" value="Verwijder Event">';
-                    } else if (!$claims["redactor"] && !$claims["journalist"] && !$claims["photographer"]) {
+                    }
+                    if (!$claims["redactor"] || !$claims["journalist"] || !$claims["photographer"]) {
                         echo '<input type="submit" value="Claim">';
-                    } else {
-                        if ($functions["headredactor"]) {
-                            echo '<input type="submit" name="action" value="Verwijder Event">';
-                        }
-                        if ($claims["redactor"]) {
-                            echo '<input type="submit" name="action" value="Bekijk Submissies">';
-                        }
-                        if ($claims["journalist"]) {
-                            echo '<input type="submit" name="action" value="Voeg Tekst Toe">';
-                        }
-                        if ($claims["photographer"]) {
-                            echo '<input type="submit" name="action" value="Upload Foto\'s">';
-                        }
+                    }
+                    if ($claims["redactor"]) {
+                        echo '<input type="submit" name="action" value="Bekijk Submissies">';
+                    }
+                    if ($claims["journalist"]) {
+                        echo '<input type="submit" name="action" value="Voeg Tekst Toe">';
+                    }
+                    if ($claims["photographer"]) {
+                        echo '<input type="submit" name="action" value="Upload Foto\'s">';
                     }
                     echo '</form>
                         </div>
