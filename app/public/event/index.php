@@ -9,25 +9,73 @@ if (session_status() != PHP_SESSION_ACTIVE) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="../style/style.css">
+        <script type="text/javascript" src="../script/dropdown.js"></script>
         <title>Event</title>
     </head>
     <body>
         <div id="wrapper">
             <header id="header">
-                <div id="logo">
-                    <h1 id="logoh">Gemorskos</h1>
-                    <p id="logop">Wij maken kranten</p>
-                </div>
+                <a href="..">
+                    <div id="logo">
+                        <h1 id="logoh">Gemorskos</h1>
+                        <p id="logop">Wij maken kranten</p>
+                    </div>
+                </a>
                 <img id="profile" src="../img/profilepic.png" alt="Profile">
             </header>
             <?php
+            function loggedOut(): void {
+                echo '<div id="dropdown" style="display: none;">
+                    <h2>U bent niet ingelogd.</h2>
+                    <ul>
+                        <li><a href="../login">Inloggen</a></li>
+                    </ul>
+                </div>';
+            }
+
+            function loggedIn(string $firstname, string $surname): void {
+                echo '<div id="dropdown" style="display: none;">
+                    <h2>'.$firstname.' '.$surname.'</h2>
+                    <ul>
+                        <li><a href="../changepassword">Wachtwoord Wijzigen</a></li>
+                        <li><a href="../logout">Uitloggen</a></li>
+                    </ul>
+                </div>';
+            }
+
             if (!isset($_SESSION["id"])) {
+                loggedOut();
                 echo '<main id="content">
                     <h1>Je bent niet ingelogd.</h1>
                     <h3>Klik <a href="../login">hier</a> om naar de inlogpagina te gaan</h3>
                 </main>';
             } else {
+                $host = $_ENV["host"];
+                $dbUsername = $_ENV["username"];
+                $dbPassword = $_ENV["password"];
+                $database = $_ENV["database"];
                 $employeeId = $_SESSION["id"];
+
+                try {
+                    $db = new PDO("mysql:host=$host;dbname=$database;charset=utf8", $dbUsername, $dbPassword);
+                } catch (Exception $exc) {
+                    showMessage("De database is op dit moment niet bereikbaar. Probeer het later nog eens.");
+                }
+
+                if (isset($db)) {
+                    try {
+                        $cursor = $db->prepare("SELECT voornaam, achternaam FROM Medewerkers WHERE medewerker_id = :id");
+                        $cursor->bindParam("id", $employeeId, PDO::PARAM_INT);
+                        $cursor->execute();
+                        if ($cursor->rowCount() == 0) {
+                            loggedOut();
+                        } else {
+                            $names = $cursor->fetch(PDO::FETCH_NUM);
+                            loggedIn($names[0], $names[1]);
+                        }
+                        $cursor->closeCursor();
+                    } catch (Exception $exc) {}
+                }
 
                 function showMessage(string $message, int $id = null): void {
                     $href = (isset($id)) ? "./?id=".$id : ".";
@@ -108,8 +156,8 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 function claimEvent(PDO $db, int $id, bool $redacteur, bool $journalist, bool $fotograaf): void {
                     if (!isset($_SESSION["id"])) {
                         echo '<main id="content">
-                            <h1>Je bent niet ingelogd</h1>
-                            <h3>Klik <a href="login.php">hier</a> om naar de inlogpagina te gaan</h3>
+                            <h1>Je bent niet ingelogd.</h1>
+                            <h3>Klik <a href="../login">hier</a> om naar de inlogpagina te gaan</h3>
                         </main>';
                     } else {
                         try {
@@ -388,11 +436,6 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                     }
                 }
 
-                try {
-                    $db = new PDO("mysql:host=mysql;dbname=Gemorskos;charset=utf8", "root", "qwerty");
-                } catch (Exception $exc) {
-                    showMessage("De database is op dit moment niet bereikbaar. Probeer het later nog eens.");
-                }
                 if (isset($db)) {
                     if (!($id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT)) || !$event = getEvent($db, $id)) {
                         showMessage("Dit event bestaat niet.");

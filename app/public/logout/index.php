@@ -8,8 +8,8 @@ if (session_status() != PHP_SESSION_ACTIVE) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="style/style.css">
-        <script type="text/javascript" src="script/dropdown.js"></script>
+        <link rel="stylesheet" href="../style/style.css">
+        <script type="text/javascript" src="../script/dropdown.js"></script>
         <title>Home</title>
     </head>
     <body>
@@ -21,14 +21,14 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                         <p id="logop">Wij maken kranten</p>
                     </div>
                 </a>
-                <img id="profile" src="img/profilepic.png" alt="Profile">
+                <img id="profile" src="../img/profilepic.png" alt="Profile">
             </header>   
             <?php
             function loggedOut(): void {
                 echo '<div id="dropdown" style="display: none;">
                     <h2>U bent niet ingelogd.</h2>
                     <ul>
-                        <li><a href="login">Inloggen</a></li>
+                        <li><a href="../login">Inloggen</a></li>
                     </ul>
                 </div>';
             }
@@ -37,8 +37,8 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                 echo '<div id="dropdown" style="display: none;">
                     <h2>'.$firstname.' '.$surname.'</h2>
                     <ul>
-                        <li><a href="changepassword">Wachtwoord Wijzigen</a></li>
-                        <li><a href="logout">Uitloggen</a></li>
+                        <li><a href="../changepassword">Wachtwoord Wijzigen</a></li>
+                        <li><a href="../logout">Uitloggen</a></li>
                     </ul>
                 </div>';
             }
@@ -46,11 +46,10 @@ if (session_status() != PHP_SESSION_ACTIVE) {
             if (!isset($_SESSION["id"])) {
                 loggedOut();
                 echo '<main id="content">
-                    <h1>Je bent niet ingelogd.</h1>
-                    <h3>Klik <a href="login">hier</a> om naar de inlogpagina te gaan</h3>
+                    <h1>Je bent al uitgelogd.</h1>
+                    <h3>Klik <a href="..">hier</a> om naar de homepagina te gaan</h3>
                 </main>';
             } else {
-                $employeeId = $_SESSION["id"];
                 $host = $_ENV["host"];
                 $username = $_ENV["username"];
                 $password = $_ENV["password"];
@@ -76,38 +75,16 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                             loggedIn($names[0], $names[1]);
                         }
                         $cursor->closeCursor();
-                        $cursor = $db->prepare("SELECT werk_functie_id FROM Medewerkers WHERE medewerker_id = :id");
-                        $cursor->bindParam("id", $employeeId, PDO::PARAM_INT);
-                        $cursor->execute();
-                        $workFunction = $cursor->fetch(PDO::FETCH_NUM);
-                        $cursor->closeCursor();
-                        if ($workFunction[0] == 1) {
-                            echo '';
-                        }
-                        $cursor = $db->prepare("SELECT evenement_id, evenement_naam, beschrijving FROM Evenement");
-                        $cursor->execute();
-                        if ($cursor->rowCount() == 0) {
-                            echo '<main id="content"><a href="event/new" id="newevent">Nieuw Event</a><h1>Er zijn geen events beschikbaar op dit moment.</h1></main>';
-                        } else {
-                            echo '<div id="eventposition">
-                                <a href="event/new" id="newevent">Nieuw Event</a>
-                                <h1>Overzicht van Events</h1>';
-                            while ($event = $cursor->fetch(PDO::FETCH_ASSOC)) {
-                                echo '<a href="event/?id='.$event["evenement_id"].'" id="event">
-                                    <h1>'.$event["evenement_naam"].'</h1>
-                                    <p>'.$event["beschrijving"].'</p>
-                                </a>';
-                            }
-                            echo '</div>';
-                        }
-                        $cursor->closeCursor();
-                    } catch (Exception $exc) {
-                        echo '<main id="content"><a href="event/new" id="newevent">Nieuw Event</a><h1>Er zijn geen events beschikbaar op dit moment.</h1></main>';
-                    }
+                    } catch (Exception $exc) {}
                 }
+
+                session_destroy();
+                echo '<main id="content">
+                    <h1>Succesvol uitgelogd.</h1>
+                    <h3>Klik <a href="..">hier</a> om naar de homepagina te gaan</h3>
+                </main>';
             }
             ?>
         </div>
-        <div id="background"></div>
     </body>
 </html>
