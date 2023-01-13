@@ -105,8 +105,8 @@ CREATE TABLE `Evenement_Detail` (
   `journalist_id` int(11) DEFAULT NULL,
   `fotograaf_id` int(11) DEFAULT NULL,
   `evenement_id` int(11) NOT NULL,
-  FOREIGN KEY (`redacteur_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  FOREIGN KEY (`journalist_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  FOREIGN KEY (`fotograaf_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  FOREIGN KEY (`evenement_id`) REFERENCES `Evenement` (`evenement_id`) ON DELETE NO ACTION ON UPDATE CASCADE
+  FOREIGN KEY (`redacteur_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`journalist_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`fotograaf_id`) REFERENCES `Medewerkers` (`medewerker_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`evenement_id`) REFERENCES `Evenement` (`evenement_id`) ON DELETE CASCADE ON UPDATE CASCADE
 );

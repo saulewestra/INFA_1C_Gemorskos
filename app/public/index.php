@@ -81,16 +81,17 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                         $cursor->execute();
                         $workFunction = $cursor->fetch(PDO::FETCH_NUM);
                         $cursor->closeCursor();
+                        $addEvent = ($workFunction[0] == 1) ? '<a href="event/new" id="newevent">Nieuw Event</a>' : "";
                         if ($workFunction[0] == 1) {
                             echo '';
                         }
-                        $cursor = $db->prepare("SELECT evenement_id, evenement_naam, beschrijving FROM Evenement");
+                        $cursor = $db->prepare("SELECT evenement_id, evenement_naam, beschrijving FROM Evenement ORDER BY dag DESC, tijd DESC");
                         $cursor->execute();
                         if ($cursor->rowCount() == 0) {
-                            echo '<main id="content"><a href="event/new" id="newevent">Nieuw Event</a><h1>Er zijn geen events beschikbaar op dit moment.</h1></main>';
+                            echo '<main id="content">'.$addEvent.'<h1>Er zijn geen events beschikbaar op dit moment.</h1></main>';
                         } else {
                             echo '<div id="eventposition">
-                                <a href="event/new" id="newevent">Nieuw Event</a>
+                                '.$addEvent.'
                                 <h1>Overzicht van Events</h1>';
                             while ($event = $cursor->fetch(PDO::FETCH_ASSOC)) {
                                 echo '<a href="event/?id='.$event["evenement_id"].'" id="event">
@@ -102,7 +103,8 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                         }
                         $cursor->closeCursor();
                     } catch (Exception $exc) {
-                        echo '<main id="content"><a href="event/new" id="newevent">Nieuw Event</a><h1>Er zijn geen events beschikbaar op dit moment.</h1></main>';
+                        $addEvent = (isset($addEvent)) ? $addEvent : "";
+                        echo '<main id="content">'.$addEvent.'<h1>Er zijn geen events beschikbaar op dit moment.</h1></main>';
                     }
                 }
             }

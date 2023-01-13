@@ -118,7 +118,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
                                 showMessage("Onjuiste postcode.");
                             } else {
                                 $date = date('Y-m-d H:i:s');
-                                $cursor = $db->prepare("INSERT INTO Evenement(evenement_naam, beschrijving, dag, tijd, straatnaam, stad, postcode) VALUES(:name, :description, :date, :date, :street, :city, :zipcode)");
+                                $cursor = $db->prepare("INSERT INTO Evenement(evenement_naam, beschrijving, dag, tijd, straatnaam, stad, postcode) VALUES(:name, :description, :date, :date, :street, :city, :zipcode); INSERT INTO Evenement_Detail(evenement_id) VALUES (LAST_INSERT_ID())");
                                 $cursor->bindParam("name", $name);
                                 $cursor->bindParam("description", $description);
                                 $cursor->bindParam("date", $date);
