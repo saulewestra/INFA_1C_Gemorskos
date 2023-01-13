@@ -76,7 +76,7 @@ INSERT INTO `Medewerkers`(`medewerker_id`, `werk_functie_id`, `voornaam`, `achte
 (NULL, 4, "Bas", "Kuiper", "B.Kuiper@Gemorskos.nl", "31-1234567", "Gemorskos01"),
 (NULL, 4, "James", "Frits", "J.Frits@Gemorskos.nl", "31-1234567", "Gemorskos01"),
 (NULL, 4, "Kas", "Oranje", "K.Oranje@Gemorskos.nl", "31-1234567", "Gemorskos01"),
-(NULL, 6, "Thomas", "Oole", "T.Oole@Gemorskos.nl", "31-1234567", "Gemorskos01");
+(NULL, 4, "Thomas", "Oole", "T.Oole@Gemorskos.nl", "31-1234567", "Gemorskos01");
 --
 -- Tabelstructuur voor tabel `Bestand`
 -- Met indexen voor de tabel
